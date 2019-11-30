@@ -1,20 +1,21 @@
 import 'dart:math';
 
-import 'package:xcp/models/skier-points.dart';
-import 'package:xcp/models/skier-race.dart';
-import 'package:xcp/models/skier.dart';
-import 'package:xcp/tabs/filter-tabbar-model.dart';
-import 'package:xcp/tabs/skier-details-model.dart';
-import 'package:xcp/tabs/skier-filter-context-model.dart';
-import 'package:xcp/widgets/label-value.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:collection/collection.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:date_format/date_format.dart';
+import 'package:xcp/models/skier-points.dart';
+import 'package:xcp/models/skier-race.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/tabs/filter-tabbar-model.dart';
+import 'package:xcp/tabs/race-results-list.dart';
+import 'package:xcp/tabs/skier-details-model.dart';
+import 'package:xcp/widgets/PageContextWrapper.dart';
+import 'package:xcp/widgets/label-value.dart';
 
 import 'list-tab-model.dart';
 
@@ -510,6 +511,9 @@ class SkierRaces extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final model = Provider.of<SkierDetailsModel>(ctx);
+    final MQ = MediaQuery.of(ctx),
+        isLargeScreen  = MQ.size.width > 600 ? true : false;
+
     return Container(
       margin: EdgeInsets.all(5),
       padding: EdgeInsets.all(5.0),
@@ -531,9 +535,22 @@ class SkierRaces extends StatelessWidget {
                   final dist = (skierRace.distanceKm > 0 ? '${skierRace.distanceKm}km ' : '' )+ (skierRace.technique == 'C' ? 'Classic' : (skierRace.technique == 'F' ? 'Skate' : '')).trim();
 
                   return ListTile(
+                    onLongPress: () {
+                        final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                        tbModel.addTab(type: TAB_RACE_DETAILS, race: skierRace.race);
+                    },
                     onTap: () {
-                      final tbModel = Provider.of<FilterTabbarModel>(ctx);
-                      tbModel.addTab(type: TAB_RACE_DETAILS, race: skierRace.race);
+                      if (isLargeScreen) {
+                        final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                        tbModel.addTab(
+                            type: TAB_RACE_DETAILS, race: skierRace.race);
+                      } else {
+
+                        Navigator.push(ctx, MaterialPageRoute(
+                          builder: (_) {
+                            return PageContextWrapper(ctx, 'Race details', () => RaceResultsList(skierRace.race.id));
+                        }));
+                      }
                     },
                       dense:true,
                       title: Row(children: [

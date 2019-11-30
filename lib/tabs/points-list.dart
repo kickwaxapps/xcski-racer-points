@@ -1,18 +1,17 @@
 import 'package:xcp/models/skier.dart';
 import 'package:xcp/stores/global.dart';
-import 'package:xcp/tabs/filter-form/filter.dart';
 import 'package:xcp/tabs/filter-tabbar-model.dart';
 import 'package:xcp/tabs/list-tab-model.dart';
 import 'package:xcp/tabs/points-list-model.dart';
 import 'package:xcp/tabs/skier-details.dart';
 import 'package:xcp/tabs/skier-filter-context-model.dart';
-import 'package:xcp/widgets/expanded-section.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:provider/provider.dart';
+import 'package:xcp/widgets/PageContextWrapper.dart';
 
 
 class PointsList extends StatelessWidget {
@@ -204,13 +203,8 @@ Widget getPointsList(ctx, List<Skier> data, bool wideScreen) {
                   filterContext.selectedSkierId = skier.id;
                   if(!wideScreen) {
                       Navigator.push(ctx, MaterialPageRoute(
-                        builder: (ctx) {
-                      return Scaffold(
-                          appBar: AppBar(),
-                          body: SkierDetails(skier)
-                      )
-                          ;
-                    }));
+                        builder: (_) => PageContextWrapper(ctx, 'Skier Details', () => SkierDetails(skier))
+                      ));
                   }
                 },
 
