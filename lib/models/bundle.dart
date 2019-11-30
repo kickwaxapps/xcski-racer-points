@@ -1,11 +1,11 @@
 import 'dart:collection';
 
-import 'package:app/models/points-bundle.dart';
+import 'package:xcp/models/points-bundle.dart';
 
-import 'package:app/models/club.dart';
-import 'package:app/models/nation.dart';
-import 'package:app/models/province.dart';
-import 'package:app/models/skier.dart';
+import 'package:xcp/models/club.dart';
+import 'package:xcp/models/nation.dart';
+import 'package:xcp/models/province.dart';
+import 'package:xcp/models/skier.dart';
 
 class Bundle {
   Map<int, Club> clubs;

@@ -1,5 +1,5 @@
-import 'package:app/models/skier.dart';
-import 'package:app/tabs/skier-filter-context-model.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/tabs/skier-filter-context-model.dart';
 import 'package:mobx/mobx.dart';
 
 part 'list-tab-model.g.dart';

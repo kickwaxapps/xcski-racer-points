@@ -1,11 +1,12 @@
 import 'dart:math';
 
-import 'package:app/models/skier-points.dart';
-import 'package:app/models/skier-race.dart';
-import 'package:app/models/skier.dart';
-import 'package:app/tabs/filter-tabbar-model.dart';
-import 'package:app/tabs/skier-details-model.dart';
-import 'package:app/tabs/skier-filter-context-model.dart';
+import 'package:xcp/models/skier-points.dart';
+import 'package:xcp/models/skier-race.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/tabs/filter-tabbar-model.dart';
+import 'package:xcp/tabs/skier-details-model.dart';
+import 'package:xcp/tabs/skier-filter-context-model.dart';
+import 'package:xcp/widgets/label-value.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -29,31 +30,27 @@ class SkierDetails extends StatelessWidget {
               child: body(ctx)
           );
 
-
   Widget body(ctx) {
-    final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
         children: [
-          Wrap( direction: Axis.horizontal
-              ,children:[
+          Wrap( direction: Axis.horizontal,
+              children:[
                 SkierInfo(),
                 SkierPointsInfo(type:PointsListType.lastPublished),
                 SkierPointsInfo(type:PointsListType.rolling),
-                RaceFilters(),
-                IconButton(icon:Icon(Icons.close), onPressed: ()=>filterContext.selectedSkierId = -1,)
               ]),
+               Wrap( children:[
+               SizedBox( height: 300, width: 800, child: SkierEosPointsGraph()),
+               SizedBox( height: 300, width: 800, child: SkierPointsGraph()),
+              ])
+              ,
+          Center( child:RaceFilters()),
+           Wrap (children: [
+              SizedBox( height: 300, width: 800,child: SkierResultGraph()),
+              SizedBox( height: 600, width: 800,child: SkierRaces()),
+           // Expanded(flex: 7, child: SkierResultGraph()),
+          ])
 
-          Expanded( flex: 5,
-              child: Row(children: [
-            Expanded(flex: 3, child: SkierRaces()),
-            Expanded(flex: 7, child: SkierResultGraph()),
-          ])),
-          Expanded( flex: 5,
-              child: Row(children: [
-                Expanded(flex: 5, child: SkierEosPointsGraph()),
-                Expanded(flex: 5, child: SkierPointsGraph()),
-              ]))
         ]);
   }
 }
@@ -64,19 +61,25 @@ class SkierInfo extends StatelessWidget {
   Widget build(BuildContext ctx) {
       final model = Provider.of<SkierDetailsModel>(ctx);
       final skier = model.skier;
-      return Card(
-          child: Container(
-            padding: EdgeInsets.all(10),
-
+      return Container(
+          child:Card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(skier.nameYob),
-                Text(skier.club.name),
-                skier.club.province.isEmpty ? null : Text(skier.club.province),
-                Text(skier.nation),
-                Text(skier.sex == 'F' ? 'Female' : 'Male'),
-              ].where((it)=> it!=null).toList(),
+                children: LabelValue.fromList( [
+                  ['Skier', skier.name],
+                  ['YOB', skier.yob],
+                  ['Age', skier.age],
+                  ...(skier.club.province.isEmpty ?
+                      [] :
+                      [
+                        ['Club', skier.club.name],
+                        ['Province', skier.club.province]
+                      ]
+                  ),
+                  ['Nation', skier.nation],
+                  ['Sex', skier.sex == 'F' ? 'Female' : 'Male']
+                ]
+            , 60)
             ),
           ));
   }
@@ -216,7 +219,7 @@ class SkierResultGraph extends StatelessWidget {
                     data, (it) => it.date.add(Duration(days: 90)).year),
                 ts = dataBySeason.entries
                     .map((season) => charts.Series<SkierRace, DateTime>(
-                        id: 'Races ${season.key}',
+                        id: '${season.key}',
 
                         domainFn: (it, _) => DateTime(
                             it.date.month < 11
@@ -241,7 +244,9 @@ class SkierResultGraph extends StatelessWidget {
                 primaryMeasureAxis: charts.NumericAxisSpec(
                     tickProviderSpec:
                         charts.BasicNumericTickProviderSpec(zeroBound: false)),
-                behaviors: [charts.SeriesLegend()]);
+                behaviors: [
+                  charts.ChartTitle('Races'),
+                  charts.SeriesLegend(position: charts.BehaviorPosition.bottom)]);
 
           case FutureStatus.pending:
             return Column(
@@ -268,7 +273,9 @@ class SkierPointsGraph extends StatelessWidget {
   Widget build(BuildContext ctx) {
     final model = Provider.of<SkierDetailsModel>(ctx);
 
-    return Container(
+    return ConstrainedBox(
+         constraints: BoxConstraints(minWidth: 500, maxHeight: 500),
+        child:Container(
       margin: EdgeInsets.all(5),
       padding: EdgeInsets.all(5.0),
       decoration: BoxDecoration(
@@ -276,28 +283,31 @@ class SkierPointsGraph extends StatelessWidget {
           borderRadius: BorderRadius.circular(30.0)
       ),
       child: Observer(builder: (_) {
+        final twiddleDate =  (dt) => DateTime(
+            dt.month < 11
+                ? DateTime.now().year
+                : DateTime.now().year - 1,
+            dt.month,
+            dt.day);
+
         switch (model.points.status) {
           case FutureStatus.fulfilled:
             final data = model.points.value,
                 dataByDiscipline = groupBy<SkierPointsSeries, String>(
-                    data, (it) => it.discipline.toString()),
+                    data, (it) => it.discipline == Discipline.distance ? 'Distance' : 'Sprint'),
                 ts = dataByDiscipline.entries
                     .map((discipline) => charts.Series<SkierPointsSeries, DateTime>(
-                    id: 'Points ${discipline.key}',
+                    id: discipline.key,
 
-                    domainFn: (it, _) => DateTime(
-                        it.date.month < 11
-                            ? DateTime.now().year
-                            : DateTime.now().year - 1,
-                        it.date.month,
-                        it.date.day),
+                    domainFn: (it, _) => twiddleDate(it.date),
                     measureFn: (it, _) => it.points,
                     data: discipline.value
                         .where((it) =>
                     it.points > 0 &&
-                        (it.date.month < 6 || it.date.month > 10))
+                        (it.date.month < 6 || it.date.month > 11))
                         .toList()
-                      ..sort((r0, r1) => r0.date.compareTo(r1.date))))
+                        ..sort((r0, r1) => twiddleDate(r0.date).compareTo(twiddleDate(r1.date)))
+                ))
                     .toList();
 
             ts.sort(( i0,i1) => i1.id.compareTo(i0.id));
@@ -308,7 +318,8 @@ class SkierPointsGraph extends StatelessWidget {
                 primaryMeasureAxis: charts.NumericAxisSpec(
                     tickProviderSpec:
                     charts.BasicNumericTickProviderSpec(zeroBound: false)),
-                behaviors: [charts.SeriesLegend()]);
+                behaviors: [charts.ChartTitle('Current Season Points', subTitle: 'Dec. - Apr.', titleStyleSpec: charts.TextStyleSpec(fontSize: 14)),
+                  charts.SeriesLegend(position: charts.BehaviorPosition.bottom)]);
 
           case FutureStatus.pending:
             return Column(
@@ -325,7 +336,7 @@ class SkierPointsGraph extends StatelessWidget {
 
         return Text('err');
       }),
-    );
+    ));
   }
 }
 
@@ -358,7 +369,7 @@ class SkierEosPointsGraph extends StatelessWidget {
                     [...data,...missingDistanceAge, ...missingSprintAge], (it) => it.discipline == Discipline.distance ? "Distance" : "Sprint"),
                 ts = dataByDiscipline.entries
                     .map((discipline) => charts.Series<SkierEOSPointsSeries, String>(
-                    id: 'Points ${discipline.key}',
+                    id: '${discipline.key}',
 
                     domainFn: (it, _) => it.age.toString(),
                     measureFn: (it, _) => it.points,
@@ -381,7 +392,9 @@ class SkierEosPointsGraph extends StatelessWidget {
                     tickProviderSpec: charts.StaticNumericTickProviderSpec([charts.TickSpec(0,label:'70', ), charts.TickSpec(10,label:'80', ), charts.TickSpec(20,label:'90', ) , charts.TickSpec(30,label:'100')])
                 ),
 
-                behaviors: [charts.SeriesLegend()]);
+                behaviors: [charts.ChartTitle('End of Season Points', subTitle: 'Age in Years', titleStyleSpec: charts.TextStyleSpec(fontSize: 14)), charts.SeriesLegend(
+                  position: charts.BehaviorPosition.bottom
+                )]);
 
           case FutureStatus.pending:
             return Column(
@@ -478,12 +491,12 @@ class SkierEosPointsGraph extends StatelessWidget {
 
     return [
       charts.Series<SkierEOSPointsSeries, String>(
-        id: 'IPB Sprint',
+        id: 'IPB',
         domainFn: (it, _) => it.age.toString(),
         measureFn: (it, _) => it.points,
         data: IPBSprint)..setAttribute(charts.rendererIdKey, 'customTargetLine'),
       charts.Series<SkierEOSPointsSeries, String>(
-          id: 'IPB Distance',
+          id: 'IPB',
           domainFn: (it, _) => it.age.toString(),
           measureFn: (it, _) => it.points,
           data: IPBDistance)..setAttribute(charts.rendererIdKey, 'customTargetLine')

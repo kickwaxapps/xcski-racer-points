@@ -1,12 +1,12 @@
-import 'package:app/models/skier.dart';
-import 'package:app/stores/global.dart';
-import 'package:app/tabs/filter-form/filter.dart';
-import 'package:app/tabs/filter-tabbar-model.dart';
-import 'package:app/tabs/list-tab-model.dart';
-import 'package:app/tabs/points-list-model.dart';
-import 'package:app/tabs/skier-details.dart';
-import 'package:app/tabs/skier-filter-context-model.dart';
-import 'package:app/widgets/expanded-section.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/stores/global.dart';
+import 'package:xcp/tabs/filter-form/filter.dart';
+import 'package:xcp/tabs/filter-tabbar-model.dart';
+import 'package:xcp/tabs/list-tab-model.dart';
+import 'package:xcp/tabs/points-list-model.dart';
+import 'package:xcp/tabs/skier-details.dart';
+import 'package:xcp/tabs/skier-filter-context-model.dart';
+import 'package:xcp/widgets/expanded-section.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -30,10 +30,9 @@ class PointsList extends StatelessWidget {
 
   Widget body(ctx) {
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-    return
-      Observer( builder: (_)=> Column(
+
+      return Observer( builder: (_)=> Column(
             children: [
-              ExpandedSection(child:Row(children: [Filter()]), expand: filterContext.filterExpanded,),
               Expanded(
                 child:
                 Observer(builder: (_) {
@@ -55,10 +54,12 @@ class PointsList extends StatelessWidget {
   }
 
   getListWidgets(ctx, List data) {
+    final MQ = MediaQuery.of(ctx),
+      isLargeScreen  = MQ.size.width > 600 ? true : false;
     return Row(
       children: [
-        Expanded(flex: 2, child: getPointsList(ctx, data)),
-        Expanded(flex: 8, child: DetailsWrapper(data))
+        Expanded(flex: 3, child: getPointsList(ctx, data, isLargeScreen)),
+        isLargeScreen ? Expanded(flex: 7 , child: DetailsWrapper(data)) : Container()
       ],
     );
   }
@@ -174,7 +175,7 @@ class SummaryPointsGraph extends StatelessWidget {
   }
 
 
-Widget getPointsList(ctx, List<Skier> data) {
+Widget getPointsList(ctx, List<Skier> data, bool wideScreen) {
     final filterContext = Provider.of<SkierFilterContextModel>(ctx),
         filter = filterContext.skierFilter,
         pd = filter.pointsDiscipline,
@@ -190,7 +191,7 @@ Widget getPointsList(ctx, List<Skier> data) {
           final points = skier.avgPointsFor(pd, pt);
 
 
-          return Observer( builder: (_)=>Container(
+          return Observer( builder: (ctx)=>Container(
             decoration: BoxDecoration(
               border:  filterContext.selectedSkierId == skier.id
                   ? Border(top: BorderSide(), bottom: BorderSide())
@@ -201,7 +202,18 @@ Widget getPointsList(ctx, List<Skier> data) {
                selected: filterContext.selectedSkierId == skier.id,
                 onTap: () {
                   filterContext.selectedSkierId = skier.id;
+                  if(!wideScreen) {
+                      Navigator.push(ctx, MaterialPageRoute(
+                        builder: (ctx) {
+                      return Scaffold(
+                          appBar: AppBar(),
+                          body: SkierDetails(skier)
+                      )
+                          ;
+                    }));
+                  }
                 },
+
                 onLongPress: () {
                   final tbModel = Provider.of<FilterTabbarModel>(ctx);
                   tbModel.addTab(type: TAB_SKIER_DETAILS, skier: skier);

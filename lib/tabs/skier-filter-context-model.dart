@@ -1,4 +1,4 @@
-import 'package:app/classes/filter.dart';
+import 'package:xcp/classes/filter.dart';
 import 'package:mobx/mobx.dart';
 
 part 'skier-filter-context-model.g.dart';

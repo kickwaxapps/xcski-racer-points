@@ -1,22 +1,40 @@
 import 'dart:async';
 import 'dart:convert';
 
-
-import 'package:app/models/race-result.dart';
-import 'package:app/models/race.dart';
-import 'package:app/models/skier-points.dart';
+import 'package:xcp/db.dart';
+import 'package:xcp/models/race-result.dart';
+import 'package:xcp/models/race.dart';
+import 'package:xcp/models/skier-points.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:app/models/bundle.dart';
+import 'package:xcp/models/bundle.dart';
 
-import 'package:app/models/skier-race.dart';
+import 'package:xcp/models/skier-race.dart';
+
 
 
 Future<Bundle> fetchBundle() async {
-  final response =  await http.get('https://www.xcracer.info/api/init3');
-  return compute(parseBundle, response.body);
+  final db =  DB();
+
+  await db.beginBig();
+  print(db);
+  try {
+    String data = await db.getBig('bundle');
+    var response;
+    if (data.isEmpty) {
+      response = await http.get('https://www.xcracer.info/api/init3');
+      await db.setBig('bundle', response.body);
+      data = response.body;
+    }
+    return compute(parseBundle, data);
+  }
+  finally {
+    db.endBig();
+  }
 }
+
+
 
 Bundle parseBundle(String data) {
   final parsed = json.decode(data);

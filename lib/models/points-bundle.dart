@@ -1,7 +1,7 @@
 
 import 'dart:collection';
 
-import 'package:app/models/skier-points.dart';
+import 'package:xcp/models/skier-points.dart';
 
 class PointListDetail {
   final int id;

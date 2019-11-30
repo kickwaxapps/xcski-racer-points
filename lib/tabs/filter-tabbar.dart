@@ -1,15 +1,15 @@
 
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
-
-import 'package:app/tabs/filter-tabbar-model.dart';
-import 'package:app/tabs/list-tab-model.dart';
+import 'package:xcp/db.dart';
+import 'package:xcp/tabs/filter-form/filter.dart';
+import 'package:xcp/tabs/filter-tabbar-model.dart';
+import 'package:xcp/tabs/list-tab-model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+
 
 
 
@@ -21,14 +21,17 @@ class FilterTabbar extends StatefulWidget {
 class _FilterTabbarState extends State<FilterTabbar>
     with TickerProviderStateMixin {
 
+  static const defaultLayout = {'tabs':[],'currentIndex': -1};
+
   FilterTabbarModel model;
 
   @override
-  void initState() {
-    final l = window.localStorage['layout'];
+  void initState()  {
+     final db = DB();
+     final tabs = db.getPref('tabs');
+     final layout = tabs.isEmpty ? defaultLayout : json.decode(tabs);
+     model = FilterTabbarModel(this,layout,context);
 
-    final layout = l  == null ? {'tabs':[],'currentIndex': -1} : json.decode(l);
-    model = FilterTabbarModel(this,layout,context);
     super.initState();
   }
   @override
@@ -49,11 +52,15 @@ class _FilterTabbarState extends State<FilterTabbar>
 
 
   Widget body() {
-
+      final db = DB();
       final x = Observer(name: 'serializer', builder: (ctx) {
-        window.localStorage['layout'] = json.encode(model.toJson);
+        db.setPref('tabs', json.encode(model.toJson));
+        final v = db.getPref('tabs');
+        print(v);
+
         return Text('hello');
       });
+
 
       return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,16 +111,7 @@ class _FilterTabbarState extends State<FilterTabbar>
                                                           children: [
                                                             i == model
                                                                 .currentIndex
-                                                                ? Tooltip(
-                                                                    message: 'Click here for more options...',
-                                                                    child: InkWell(
-                                                              hoverColor:  Colors.blue,
-                                                                onTap: model
-                                                                    .tabs[i]
-                                                                    .model
-                                                                    .onTap,
-                                                                child: filterBtn
-                                                            ))
+                                                                ? Filter(model.tabs[i].model.skierFilterContextModel)
                                                                 : filterBtn,
                                                             Tooltip(message:model.tabs[i].model.title,
                                                             child:  Container(
@@ -127,14 +125,8 @@ class _FilterTabbarState extends State<FilterTabbar>
                                                                     right: 10),
                                                                 child: InkWell(
                                                                     hoverColor: Colors.grey,
-                                                                    child: Icon(
-                                                                        Icons
-                                                                            .close,
-                                                                        size: 15),
-                                                                    onTap: () =>
-                                                                        model
-                                                                            .deleteTab(
-                                                                            i)
+                                                                    child: Icon(Icons.close, size: 25),
+                                                                    onTap: () => model.deleteTab(i)
                                                                 )
                                                             )
                                                           ]),

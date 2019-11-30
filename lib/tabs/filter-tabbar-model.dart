@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:app/models/race.dart';
-import 'package:app/models/skier.dart';
-import 'package:app/tabs/list-tab.dart';
+import 'package:xcp/models/race.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/tabs/list-tab.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 

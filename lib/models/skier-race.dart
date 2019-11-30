@@ -1,7 +1,7 @@
 
 
-import 'package:app/models/race-result.dart';
-import 'package:app/models/race.dart';
+import 'package:xcp/models/race-result.dart';
+import 'package:xcp/models/race.dart';
 
 class SkierRace
  {

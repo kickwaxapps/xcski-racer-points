@@ -1,25 +1,37 @@
-import 'package:app/tabs/filter-tabbar.dart';
+import 'package:xcp/db.dart';
+import 'package:xcp/tabs/filter-tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 
-import 'package:app/models/bundle.dart';
-import 'package:app/stores/global.dart';
+import 'package:xcp/models/bundle.dart';
+import 'package:xcp/stores/global.dart';
 
-
-void main() => runApp(MyApp());
+void main() async {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
+
+  init() async {
+    await DB().init();
+  }
   // This widget is the root of your application.
   @override
+
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CPL Points Browser',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: PointsViewer(title: 'Flutter Demo Home Page'),
+      home: FutureBuilder(
+          future: init(),
+          builder:(_, snp) => snp.connectionState == ConnectionState.done
+              ? PointsViewer(title: 'Flutter Demo Home Page')
+              : Text('Wait')
+      )
     );
   }
 
@@ -40,15 +52,13 @@ class _PointsViewerState extends State<PointsViewer> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext ctx) =>
-      MultiProvider(
-        providers: [
+
           Provider<GlobalStore>(
-              builder: (_) => GlobalStore()
-          )
-        ],
-        child: Scaffold(
-            body: BodyWidget()
-        )
+              create: (_) => GlobalStore(),
+              child: Scaffold(
+
+            body: SafeArea(child:BodyWidget())
+        ),
       );
 
 }
@@ -61,12 +71,12 @@ class BodyWidget extends StatelessWidget {
 
           switch (global.bundle.status) {
             case FutureStatus.pending:
-              return Column(
+              return Center(child:Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     CircularProgressIndicator(),
                     Text('Loading Skiers...')
-                  ]);
+                  ]));
             case FutureStatus.rejected:
               return Column(
                   mainAxisAlignment: MainAxisAlignment.center,

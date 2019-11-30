@@ -1,4 +1,4 @@
-import 'package:app/models/skier.dart';
+import 'package:xcp/models/skier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 

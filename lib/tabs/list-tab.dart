@@ -1,9 +1,9 @@
 
-import 'package:app/stores/global.dart';
-import 'package:app/tabs/points-list.dart';
-import 'package:app/tabs/race-results-list.dart';
-import 'package:app/tabs/skier-details.dart';
-import 'package:app/tabs/skier-filter-context-model.dart';
+import 'package:xcp/stores/global.dart';
+import 'package:xcp/tabs/points-list.dart';
+import 'package:xcp/tabs/race-results-list.dart';
+import 'package:xcp/tabs/skier-details.dart';
+import 'package:xcp/tabs/skier-filter-context-model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

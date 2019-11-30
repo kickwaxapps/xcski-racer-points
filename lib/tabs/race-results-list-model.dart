@@ -1,6 +1,6 @@
-import 'package:app/loader.dart';
-import 'package:app/models/race-result.dart';
-import 'package:app/models/race.dart';
+import 'package:xcp/loader.dart';
+import 'package:xcp/models/race-result.dart';
+import 'package:xcp/models/race.dart';
 import 'package:mobx/mobx.dart';
 
 

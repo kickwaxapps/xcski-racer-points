@@ -1,48 +1,72 @@
-import 'package:app/models/skier.dart';
-import 'package:app/stores/global.dart';
-import 'package:app/tabs/filter-form/filter-model.dart';
-import 'package:app/tabs/filter-form/region-filter-model.dart';
-import 'package:app/tabs/filter-form/yob-filter-model.dart';
-import 'package:app/tabs/skier-filter-context-model.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/stores/global.dart';
+import 'package:xcp/tabs/filter-form/filter-model.dart';
+import 'package:xcp/tabs/filter-form/region-filter-model.dart';
+import 'package:xcp/tabs/filter-form/yob-filter-model.dart';
+import 'package:xcp/tabs/skier-filter-context-model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:app/classes/filter.dart';
+import 'package:xcp/classes/filter.dart';
+
+
 
 class Filter extends StatelessWidget {
+  Filter(this.filterContextModel);
+  final SkierFilterContextModel filterContextModel;
   final FilterModel model = FilterModel();
 
   @override
   Widget build(BuildContext ctx) =>
-      Provider<FilterModel>.value(value: model, child: body(ctx));
-
-  Widget body(ctx) {
-
-    return Expanded(
-        child: Column(
-      children: [
-        Row(children: [
-          Expanded(child: Column( children: <Widget>[
-              SearchString(),
-              ChipFilters(),
-          ])
-          ),
-        Expanded(child: Column( children: <Widget>[
-          ChipOptions(), ClearFilter()
-        ],))
-
+      MultiProvider( providers: [
+        Provider<FilterModel>.value(value: model),
+        Provider<SkierFilterContextModel>.value(value: filterContextModel)
       ],
-    )
-        //   NationsUI()
-    ]));
+      child: FilterMenu());
+}
+
+class FilterMenu extends StatelessWidget {
+  @override
+  Widget build(BuildContext ctx) {
+    final filter = Provider.of<FilterModel>(ctx);
+   return PopupMenuButton(
+
+     tooltip:'Tap for more options',
+     icon: Icon(Icons.filter_list, color: Colors.blueAccent,),
+     itemBuilder: (_)=> [
+       PopupMenuItem(child: ClearFilter(ctx)),
+       PopupMenuItem(child: SearchString(ctx)),
+       PopupMenuItem(child: ChipOptions(ctx)),
+       PopupMenuItem(child: ChipFilters(ctx)),
+    ]
+   );
+
   }
 }
 
-class ClearFilter extends StatelessWidget {
+
+abstract class FilterItem extends StatelessWidget {
+
+  FilterItem(this.ctx);
+  final ctx;
+
   @override
-  Widget build(BuildContext ctx) {
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return doBuild(ctx);
+  }
+
+  doBuild(BuildContext ctx);
+
+}
+
+class ClearFilter extends FilterItem {
+  ClearFilter(ctx) : super(ctx);
+
+  @override
+  Widget doBuild(BuildContext ctx) {
     final filter = Provider.of<FilterModel>(ctx);
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);
 
@@ -57,12 +81,14 @@ class ClearFilter extends StatelessWidget {
 }
 
 
-class ChipOptions extends StatelessWidget {
+class ChipOptions extends FilterItem {
+  ChipOptions(ctx) : super(ctx);
+
 
   @override
-  Widget build(BuildContext ctx) => Wrap(children:
-    getPointsConfig(ctx),
-  );
+  Widget doBuild(BuildContext ctx) {
+    return Wrap(children:getPointsConfig(ctx));
+  }
 
   List<Widget> getPointsConfig(ctx) {
     final filter = Provider.of<FilterModel>(ctx),
@@ -97,9 +123,12 @@ class ChipOptions extends StatelessWidget {
 
 }
 
-class ChipFilters extends StatelessWidget {
+class ChipFilters  extends FilterItem {
+  ChipFilters(ctx) : super(ctx);
+
+
   @override
-  Widget build(BuildContext ctx) => Wrap(children: [
+  Widget doBuild(BuildContext ctx) => Wrap(children: [
         ...getSexes(ctx),
         ...getYobs(ctx),
         ...getNations(ctx),
@@ -200,10 +229,11 @@ List getRegions(ctx) {
   return cbs;
 }
 
-class SearchString extends StatelessWidget {
+class SearchString  extends FilterItem {
+  SearchString(ctx) : super(ctx);
 
   @override
-  Widget build(BuildContext ctx) {
+  Widget doBuild(BuildContext ctx) {
     final filter = Provider.of<FilterModel>(ctx);
     final ctr = filter.searchStringController;
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);

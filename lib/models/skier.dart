@@ -1,5 +1,5 @@
-import 'package:app/models/points-bundle.dart';
-import 'package:app/models/skier-points.dart';
+import 'package:xcp/models/points-bundle.dart';
+import 'package:xcp/models/skier-points.dart';
 
 import 'club.dart';
 
@@ -26,6 +26,7 @@ class Skier {
 
   String get nation => distancePoints?.nation ?? sprintPoints?.nation ?? '';
 
+  String get name => firstname + ' ' + lastname;
   String get nameYob => firstname + ' ' + lastname + ', ' + yob.toString();
   String get clubCountry => club.isNone ? nation : club.name + ', ' + club.province;
 

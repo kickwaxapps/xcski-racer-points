@@ -1,9 +1,9 @@
 import 'dart:core';
 
-import 'package:app/loader.dart';
-import 'package:app/models/skier-points.dart';
-import 'package:app/models/skier-race.dart';
-import 'package:app/models/skier.dart';
+import 'package:xcp/loader.dart';
+import 'package:xcp/models/skier-points.dart';
+import 'package:xcp/models/skier-race.dart';
+import 'package:xcp/models/skier.dart';
 import 'package:mobx/mobx.dart';
 
 

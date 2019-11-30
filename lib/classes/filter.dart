@@ -1,5 +1,5 @@
-import 'package:app/models/skier.dart';
-import 'package:app/tabs/filter-form/filter-model.dart';
+import 'package:xcp/models/skier.dart';
+import 'package:xcp/tabs/filter-form/filter-model.dart';
 
 
 class SkierFilter {

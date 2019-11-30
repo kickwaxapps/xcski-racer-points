@@ -1,10 +1,9 @@
 /// cmd:     flutter packages pub run build_runner watch --delete-conflicting-outputs
 
-import 'package:app/classes/filter.dart';
-import 'package:app/models/bundle.dart';
-import 'package:app/loader.dart';
-import 'package:app/models/skier.dart';
-import 'package:flutter/foundation.dart';
+import 'package:xcp/classes/filter.dart';
+import 'package:xcp/models/bundle.dart';
+import 'package:xcp/loader.dart';
+import 'package:xcp/models/skier.dart';
 import 'package:mobx/mobx.dart';
 
 part 'global.g.dart';
@@ -18,11 +17,9 @@ abstract class _Global with Store {
   }
 
 
-  Future<List<Skier>> filterResults(SkierFilter filter) {
-    return compute(
-        filter.results,
-        bundle.value != null
-            ? bundle.value.skiers.values.toList()
+  Future<List<Skier>>  filterResults(SkierFilter filter) async {
+    return await filter.results( bundle.value != null
+                      ? bundle.value.skiers.values.toList()
             : List<Skier>());
   }
 
