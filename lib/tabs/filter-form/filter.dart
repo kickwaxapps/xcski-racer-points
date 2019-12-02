@@ -30,7 +30,6 @@ class Filter extends StatelessWidget {
 class FilterMenu extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
-    final filter = Provider.of<FilterModel>(ctx);
    return PopupMenuButton(
 
      tooltip:'Tap for more options',
@@ -93,14 +92,16 @@ class ChipOptions extends FilterItem {
   List<Widget> getPointsConfig(ctx) {
     final filter = Provider.of<FilterModel>(ctx),
         filterContext = Provider.of<SkierFilterContextModel>(ctx);
-
+        filter.pointDiscipline = filterContext.skierFilter.pointsDiscipline;
+        filter.pointsListType = filterContext.skierFilter.pointsListType;
+        filter.sex = filterContext.skierFilter.sex;
     return [
       ...List.generate(PointsDiscipline.values.length, (i) {
         return Observer(
           builder: (_) => ChoiceChip(
               label:
               Text(PointsDiscipline.values[i].toString().split('.').last),
-              selected: filter.pointDiscipline == PointsDiscipline.values[i],
+              selected: filterContext.skierFilter.pointsDiscipline == PointsDiscipline.values[i],
               onSelected: (b) {
                 filter.pointDiscipline = b ? PointsDiscipline.values[i] : null;
                 filterContext.skierFilter = SkierFilter.from(filter);
@@ -109,13 +110,16 @@ class ChipOptions extends FilterItem {
       }).toList(),
       ...List.generate(PointsListType.values.length, (i) {
         return Observer(
-          builder: (_) => ChoiceChip(
+          builder: (_) {
+             print('PLT:'+filterContext.skierFilter.pointsListType.toString());
+              return ChoiceChip(
               label: Text(PointsListType.values[i].toString().split('.').last),
-              selected: filter.pointsListType == PointsListType.values[i],
+              selected: filterContext.skierFilter.pointsListType == PointsListType.values[i],
               onSelected: (b) {
                 filter.pointsListType = b ? PointsListType.values[i] : null;
                 filterContext.skierFilter = SkierFilter.from(filter);
-              }),
+              });},
+
         );
       }).toList(),
     ];
