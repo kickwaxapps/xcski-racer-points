@@ -1,3 +1,4 @@
+import 'package:xcp/classes/filter.dart';
 import 'package:xcp/models/skier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
@@ -13,9 +14,10 @@ part 'filter-model.g.dart';
 class FilterModel = _FilterModel with _$FilterModel;
 
 abstract class _FilterModel with Store {
+  _FilterModel(SkierFilter skierFilter):
+        searchStringController = TextEditingController(text:skierFilter.searchString);
 
-
-  TextEditingController  searchStringController = TextEditingController();
+  final TextEditingController  searchStringController ;
 
   @observable
   bool filterOpen;

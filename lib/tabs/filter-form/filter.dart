@@ -14,9 +14,10 @@ import 'package:xcp/classes/filter.dart';
 
 
 class Filter extends StatelessWidget {
-  Filter(this.filterContextModel);
+  Filter(this.filterContextModel):
+      model = FilterModel(filterContextModel.skierFilter);
   final SkierFilterContextModel filterContextModel;
-  final FilterModel model = FilterModel();
+  final FilterModel model;
 
   @override
   Widget build(BuildContext ctx) =>

@@ -91,7 +91,8 @@ class SkierFilter {
         n = nations.join(','),
         s = sex == 1 ? 'F' : (sex == 2) ? 'M' : '',
         b = yobs.map( (it)=>it.toString().substring(2)).join(','),
-        t = (s+b+' '+n+' '+r).trim();
+        c = searchString.length > 0 ? '['+searchString+']' : '',
+        t = (s+b+' '+n+' '+r+' '+c).trim();
     return d+ ' ' + (t.length > 0 ? t : 'All' );
   }
 
