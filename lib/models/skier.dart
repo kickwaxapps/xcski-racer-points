@@ -30,6 +30,8 @@ class Skier {
   String get nameYob => firstname + ' ' + lastname + ', ' + yob.toString();
   String get clubCountry => club.isNone ? nation : club.name + ', ' + club.province;
 
+  String get searchText => nameYob.toLowerCase()+ clubCountry.toLowerCase();
+
 
 
   SkierPoints  pointsFor(PointsDiscipline pd) {

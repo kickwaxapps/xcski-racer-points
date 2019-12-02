@@ -1,5 +1,6 @@
 import 'package:xcp/models/skier.dart';
 import 'package:xcp/tabs/filter-form/filter-model.dart';
+import 'package:diacritic/diacritic.dart';
 
 
 class SkierFilter {
@@ -59,28 +60,25 @@ class SkierFilter {
   final String searchString;
   final int sex;
 
-  List<Skier> getResults(List<Skier> skiers)  {
-
-    final
-      sexC =  sex > 0 ? ["F","M"][sex-1] : '',
-      test = (s) {
+  List<Skier> getResults(List<Skier> skiers) {
+    final sexC = sex > 0 ? ["F", "M"][sex - 1] : '',
+            ss = removeDiacritics(searchString.trim().toLowerCase()),
+        test = (Skier s) {
       if (s.distancePoints.avgPoints == null) return false;
       if (sex > 0 && s.sex != sexC) return false;
       if (yobs.length > 0 && !yobs.contains(s.yob)) return false;
       if (regions.length > 0 && !regions.contains(s.club.province ?? 'XX')) return false;
       if (nations.length > 0 && !nations.contains(s.distancePoints.nation)) return false;
-      if (searchString.length > 0 && !(s.firstname+s.lastname+s.club.name).contains(searchString)) return false;
+      if (ss.length > 0 && !removeDiacritics(s.searchText).contains(searchString)) return false;
       return true;
     };
 
-
-    final filteredList  = skiers.where((s) => test(s)).toList();
-    final pd = pointsDiscipline,
-      pt = pointsListType;
-    filteredList.sort( (s0,s1) => s1.avgPointsFor(pd,pt).compareTo(s0.avgPointsFor(pd,pt)) );
-    return  filteredList;
+    final filteredList = skiers.where((s) => test(s)).toList();
+    final pd = pointsDiscipline, pt = pointsListType;
+    filteredList.sort(
+        (s0, s1) => s1.avgPointsFor(pd, pt).compareTo(s0.avgPointsFor(pd, pt)));
+    return filteredList;
   }
-
 
   Future<List<Skier>> results(List<Skier> skiers) {
     return Future.value(getResults( skiers) );
