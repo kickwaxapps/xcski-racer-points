@@ -15,7 +15,6 @@ class LabelValue extends StatelessWidget {
   }
 
   static List<LabelValue> fromList(List<List> labelValueList, double labelWidth) {
-    print(labelValueList);
     return labelValueList.map((it) =>
         LabelValue(label: it[0], value: it[1].toString(), labelWidth: labelWidth)).toList();
   }

@@ -45,8 +45,8 @@ class SkierDetails extends StatelessWidget {
                SizedBox( height: 300, width: 800, child: SkierPointsGraph()),
               ])
               ,
-          Center( child:RaceFilters()),
            Wrap (children: [
+             Center( child:RaceFilters()),
               SizedBox( height: 300, width: 800,child: SkierResultGraph()),
               SizedBox( height: 600, width: 800,child: SkierRaces()),
            // Expanded(flex: 7, child: SkierResultGraph()),
@@ -63,8 +63,14 @@ class SkierInfo extends StatelessWidget {
       final model = Provider.of<SkierDetailsModel>(ctx);
       final skier = model.skier;
       return Container(
+          padding: EdgeInsets.all(10),
+
           child:Card(
-            child: Column(
+
+            child: Row(
+           children:[
+             Icon(Icons.person, color: Colors.grey, size:100,),
+             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 children: LabelValue.fromList( [
                   ['Skier', skier.name],
@@ -81,8 +87,8 @@ class SkierInfo extends StatelessWidget {
                   ['Sex', skier.sex == 'F' ? 'Female' : 'Male']
                 ]
             , 60)
-            ),
-          ));
+            )],
+          )));
   }
 }
 
@@ -107,7 +113,10 @@ class SkierPointsInfo extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.fitWidth,
 
-            child: Column(
+            child:Row(
+                children:[
+                  Icon(Icons.receipt, size: 100),
+                  Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(type == PointsListType.lastPublished ? 'Offical Published Points' : 'Rolling Points', textAlign: TextAlign.center),
@@ -115,7 +124,7 @@ class SkierPointsInfo extends StatelessWidget {
                   Column( crossAxisAlignment: CrossAxisAlignment.start, children:[Text(''), label('Distance'), label('Sprint'), label('Combined')]),
                  ...List.generate(header.length, (i)=>Column( crossAxisAlignment: CrossAxisAlignment.end, children:[heading(header[i]), num(pd[i], f: i==2 ? 0 : 2), num(sp[i],f: i==2 ? 0 : 2), num(cb[i], f: i==2 ? 0 : 2)]) )
               ])
-            ]),
+            ])]),
           )
               )
     );
@@ -359,7 +368,11 @@ class SkierEosPointsGraph extends StatelessWidget {
       child: Observer(builder: (_) {
         switch (model.eosPoints.status) {
           case FutureStatus.fulfilled:
-            final data = model.eosPoints.value.where((it)=>it.points >= MIN_MEASURE).map((it)=>SkierEOSPointsSeries(points: max(it.points-MIN_MEASURE,0), discipline: it.discipline, age: it.age)),
+            final pts = model.eosPoints.value,
+                  ptsValues = pts.map((it)=>it.points),
+                  minPoints = ptsValues.reduce(min),
+                  minMeasure = (minPoints/5).round() * 5 - 5,
+                  data = pts.map((it)=>SkierEOSPointsSeries(points: max(it.points-minMeasure,0), discipline: it.discipline, age: it.age)),
                 minAge =data.map((it)=>it.age).reduce(min),
                 maxAge =data.map((it)=>it.age).reduce(max),
                 ages = List.generate(maxAge - minAge+1, (i)=> minAge +  i ),
@@ -377,7 +390,7 @@ class SkierEosPointsGraph extends StatelessWidget {
                     data: discipline.value.toList()..sort((r0, r1) => r0.age.compareTo(r1.age))
                 ));
 
-            return charts.BarChart([...ts, ...getInternationalNorms(model.skier, minAge, maxAge)],
+            return charts.BarChart(ts.toList(),
                 barGroupingType: charts.BarGroupingType.grouped,
                 customSeriesRenderers: [
                   new charts.BarTargetLineRendererConfig<String>(
@@ -390,7 +403,8 @@ class SkierEosPointsGraph extends StatelessWidget {
 
                 ) ,
                 primaryMeasureAxis: charts.NumericAxisSpec(
-                    tickProviderSpec: charts.StaticNumericTickProviderSpec([charts.TickSpec(0,label:'70', ), charts.TickSpec(10,label:'80', ), charts.TickSpec(20,label:'90', ) , charts.TickSpec(30,label:'100')])
+                    tickProviderSpec: charts.StaticNumericTickProviderSpec(
+                        List.generate(((100-minMeasure)/5).round()+1, (i) => charts.TickSpec(i*5,label:(minMeasure + i * 5).toString())))
                 ),
 
                 behaviors: [charts.ChartTitle('End of Season Points', subTitle: 'Age in Years', titleStyleSpec: charts.TextStyleSpec(fontSize: 14)), charts.SeriesLegend(

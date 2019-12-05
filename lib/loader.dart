@@ -18,7 +18,6 @@ Future<Bundle> fetchBundle() async {
   final db =  DB();
 
   await db.beginBig();
-  print(db);
   try {
     String data = await db.getBig('bundle');
     var response;

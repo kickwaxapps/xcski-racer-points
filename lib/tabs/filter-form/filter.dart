@@ -31,16 +31,18 @@ class Filter extends StatelessWidget {
 class FilterMenu extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
-   return PopupMenuButton(
+   return  PopupMenuButton(
 
-     tooltip:'Tap for more options',
-     icon: Icon(Icons.filter_list, color: Colors.blueAccent,),
-     itemBuilder: (_)=> [
-       PopupMenuItem(child: ClearFilter(ctx)),
-       PopupMenuItem(child: SearchString(ctx)),
-       PopupMenuItem(child: ChipOptions(ctx)),
-       PopupMenuItem(child: ChipFilters(ctx)),
-    ]
+       tooltip:'Tap for more options',
+       offset: Offset(50,50),
+       icon: Icon(Icons.filter_list, color: Colors.blueAccent,),
+       itemBuilder: (_)=> [
+         PopupMenuItem(child: Center(child: Text('Fitler Settings'))),
+         PopupMenuItem(child: ClearFilter(ctx)),
+         PopupMenuItem(child: SearchString(ctx)),
+         PopupMenuItem(child: ChipOptions(ctx)),
+         PopupMenuItem(child: ChipFilters(ctx)),
+      ]
    );
 
   }
@@ -112,7 +114,6 @@ class ChipOptions extends FilterItem {
       ...List.generate(PointsListType.values.length, (i) {
         return Observer(
           builder: (_) {
-             print('PLT:'+filterContext.skierFilter.pointsListType.toString());
               return ChoiceChip(
               label: Text(PointsListType.values[i].toString().split('.').last),
               selected: filterContext.skierFilter.pointsListType == PointsListType.values[i],
@@ -242,6 +243,7 @@ class SearchString  extends FilterItem {
     final filter = Provider.of<FilterModel>(ctx);
     final ctr = filter.searchStringController;
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);
+
 
     final set = (v) {
        // filter.searchString = v;

@@ -7,19 +7,21 @@ class PointListDetail {
   final int id;
   final String sex;
   final String type;
+  final String title;
   final DateTime pubDate;
   final DateTime fromDate;
   final DateTime toDate;
   final int raceCount;
   final String sprintOrDistance;
 
-  PointListDetail({this.id, this.sex, this.type, this.pubDate, this.fromDate, this.toDate, this.raceCount, this.sprintOrDistance});
+  PointListDetail({this.id, this.sex, this.type, this.title, this.pubDate, this.fromDate, this.toDate, this.raceCount, this.sprintOrDistance});
 
   factory PointListDetail.fromJson(Map<String, dynamic> json) {
     return PointListDetail(
       id: json['id'] as int,
       sex: json['sex'] as String,
       type: json['type'] as String,
+      title: json['title'] as String,
       pubDate: DateTime.parse(json['pub_dt']),
       fromDate: DateTime.parse(json['from_dt']),
       toDate: DateTime.parse(json['to_dt']),
@@ -44,7 +46,7 @@ class PointsBundle {
   factory PointsBundle.fromJson(Map<String, dynamic> json) {
 
     var distancePoints =  (json['D'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json));
-    var sprintPoints = (json['S'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json));
+    var sprintPoints = []; //(json['S'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json));
 
     return PointsBundle( 
       maleDistance: PointListDetail.fromJson(json['l'][0]),

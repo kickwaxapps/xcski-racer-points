@@ -56,8 +56,6 @@ class _FilterTabbarState extends State<FilterTabbar>
       final x = Observer(name: 'serializer', builder: (ctx) {
         db.setPref('tabs', json.encode(model.toJson));
         final v = db.getPref('tabs');
-        print(v);
-
         return Text('hello');
       });
 
@@ -150,9 +148,6 @@ class _FilterTabbarState extends State<FilterTabbar>
             Expanded(child: Observer(
               name: 'tab-view',
               builder: (ctx) {
-                print('tab-view' + model.count.toString() + ',' +
-                    model.controller.index.toString() + ',' +
-                    model.currentIndex.toString());
                 return TabBarView(
 
                     controller: model.controller,

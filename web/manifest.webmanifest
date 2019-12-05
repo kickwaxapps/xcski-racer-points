@@ -1,0 +1,18 @@
+{
+	"dir" : "ltr",
+	"lang" : "English",
+	"name" : "XCRacer Canadian Cross Country Skiing Points",
+	"scope" : "/",
+	"display" : "fullscreen",
+	"start_url" : "https://xcpoints.surge.sh/",
+	"short_name" : "XCRacer",
+	"theme_color" : "transparent",
+	"description" : "",
+	"orientation" : "any",
+	"background_color" : "transparent",
+	"related_applications" : "",
+	"prefer_related_applications" : "false",
+	"icons" : ["/skier192.png"],
+	"screenshots" : [],
+	"generated" : "true"
+}
