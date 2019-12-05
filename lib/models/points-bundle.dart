@@ -45,8 +45,8 @@ class PointsBundle {
 
   factory PointsBundle.fromJson(Map<String, dynamic> json) {
 
-    var distancePoints =  (json['D'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json));
-    var sprintPoints = []; //(json['S'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json));
+    var distancePoints =  (json['D'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json)).where((it)=>it.raceCount > 0);
+    var sprintPoints =  (json['S'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json)).where((it)=>it.raceCount > 0);
 
     return PointsBundle( 
       maleDistance: PointListDetail.fromJson(json['l'][0]),

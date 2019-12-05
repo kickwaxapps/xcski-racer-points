@@ -320,7 +320,7 @@ class SkierPointsGraph extends StatelessWidget {
                 ))
                     .toList();
 
-            ts.sort(( i0,i1) => i1.id.compareTo(i0.id));
+            ts.sort((i0,i1) => i1.id.compareTo(i0.id));
 
             return charts.TimeSeriesChart(ts,
                 defaultRenderer: charts.LineRendererConfig(
@@ -390,7 +390,7 @@ class SkierEosPointsGraph extends StatelessWidget {
                     data: discipline.value.toList()..sort((r0, r1) => r0.age.compareTo(r1.age))
                 ));
 
-            return charts.BarChart(ts.toList(),
+            return charts.BarChart([...ts, ...getInternationalNorms(model.skier.sex, minAge, maxAge, minMeasure)],
                 barGroupingType: charts.BarGroupingType.grouped,
                 customSeriesRenderers: [
                   new charts.BarTargetLineRendererConfig<String>(
@@ -430,8 +430,7 @@ class SkierEosPointsGraph extends StatelessWidget {
   }
 
 
- List getInternationalNorms(Skier skier, minAge, maxAge) {
-    final sex = skier.sex;
+ List getInternationalNorms(sex, minAge, maxAge, minMeasure) {
     final IPBFS = [
           [16, 80],
           [17, 83.5],
@@ -448,7 +447,7 @@ class SkierEosPointsGraph extends StatelessWidget {
           [28, 97.5],
           [29, 97.5],
           [30, 97.5]
-        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-MIN_MEASURE,0), discipline: Discipline.sprint, age: it[0])),
+        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-minMeasure,0), discipline: Discipline.sprint, age: it[0])),
     IPBFD = [
           [16, 77.5],
           [17, 81],
@@ -465,7 +464,7 @@ class SkierEosPointsGraph extends StatelessWidget {
           [28, 96],
           [29, 96],
           [30, 96]
-        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-MIN_MEASURE,0), discipline: Discipline.distance, age: it[0])),
+        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-minMeasure,0), discipline: Discipline.distance, age: it[0])),
       IPBMS =[
           [16, 81],
           [17, 84.5],
@@ -482,7 +481,7 @@ class SkierEosPointsGraph extends StatelessWidget {
           [28, 97.0],
           [29, 97],
           [30, 97]
-        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-MIN_MEASURE,0), discipline: Discipline.sprint, age: it[0])),
+        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-minMeasure,0), discipline: Discipline.sprint, age: it[0])),
       IPBMD =[
           [16, 80.5],
           [17, 84],
@@ -499,7 +498,7 @@ class SkierEosPointsGraph extends StatelessWidget {
           [28, 97.5],
           [29, 98],
           [30, 98.5]
-        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-MIN_MEASURE,0), discipline: Discipline.distance, age: it[0]));
+        ].map((it)=> SkierEOSPointsSeries(points: max(it[1]-minMeasure,0), discipline: Discipline.distance, age: it[0]));
 
     final IPBSprint = (sex == 'F' ? IPBFS : IPBMS).where((it)=>it.age >=minAge && it.age <= maxAge).toList();
     final IPBDistance = (sex == 'F' ? IPBFD : IPBMD).where((it)=>it.age >= minAge && it.age <= maxAge).toList();
