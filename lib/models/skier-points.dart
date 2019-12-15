@@ -1,28 +1,45 @@
-class SkierPoints {
-  final double avgPoints;
-  final String nation;
+
+import 'package:xcp/models/skier.dart';
+
+class Points{
+  final double avg;
   final int raceCount;
-  final double rollingTotalPoints;
-  final double rollingAvgPoints;
-  final int rollingRaceCount;
-  final int skierId;
-  final double totalPoints;
+  double get total => avg * raceCount;
+  Points(this.avg, this.raceCount);
 
-  SkierPoints({this.avgPoints=0, this.nation='', this.raceCount=0, this.rollingAvgPoints=0,  this.rollingTotalPoints = 0, this.rollingRaceCount=0, this.skierId, this.totalPoints=0});
+  static Points none = Points(0,0);
+}
 
+class SkierPoints {
+  final String nation;
+  Points rolling = Points.none;
+  final Points cpl;
+  SkierPoints(this.nation,  this.cpl, this.rolling);
+
+  factory SkierPoints.copy(SkierPoints cp) {
+    return SkierPoints(cp.nation,
+        Points(cp.cpl.avg, cp.cpl.raceCount),
+        Points(cp.rolling.avg, cp.rolling.raceCount));
+  }
   factory SkierPoints.fromJson(Map<String, dynamic> json) {
     return SkierPoints(
-      avgPoints: json['avg_points'] as double,
-      nation: json['nation'] as String,
-      raceCount: json['race_count'] as int,
-      rollingAvgPoints: json['rolling_avg_points'] as double,
-      rollingTotalPoints:  (json['rolling_avg_points']as double) * (json['rolling_race_count'] as int),
-      rollingRaceCount: json['rolling_race_count'] as int,
-      skierId: json['skier_id'] as int,
-      totalPoints: json['total_points'] as double
+      json['nation'] as String,
+      Points(json['avg_points'] as double, json['race_count'] as int),
+      Points(json['rolling_avg_points'] as double, json['rolling_race_count'] as int),
     );
   }
+
+  updateRolling(Points points) {
+    if (points.avg != rolling.avg) {
+      rolling = Points(points.avg, points.raceCount);
+    }
+  }
+
+  static SkierPoints none =  SkierPoints('',Points.none, Points.none);
+
 }
+
+
 
 enum Discipline {sprint, distance}
 

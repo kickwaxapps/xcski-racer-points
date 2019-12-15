@@ -7,6 +7,7 @@ part 'list-tab-model.g.dart';
 const int TAB_POINTS_LIST = 0;
 const int TAB_SKIER_DETAILS = 1;
 const int TAB_RACE_DETAILS = 2;
+const int TAB_LIST_BUILDER = 3;
 
 class ListTabModel = _ListTabModel with _$ListTabModel;
 
@@ -31,7 +32,7 @@ abstract class _ListTabModel with Store {
   @computed
   String get title => type == TAB_POINTS_LIST
       ? skierFilterContextModel.skierFilter.toString()
-      : name;
+      : name ?? 'Tab';
 
   @observable
   String description = '';

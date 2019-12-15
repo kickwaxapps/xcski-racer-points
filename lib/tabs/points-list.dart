@@ -12,6 +12,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:provider/provider.dart';
 import 'package:xcp/widgets/PageContextWrapper.dart';
+import 'package:xcp/widgets/padded-card.dart';
 
 
 class PointsList extends StatelessWidget {
@@ -30,7 +31,7 @@ class PointsList extends StatelessWidget {
   Widget body(ctx) {
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);
 
-      return Observer( builder: (_)=> Column(
+      return Column(
             children: [
               Expanded(
                 child:
@@ -47,7 +48,6 @@ class PointsList extends StatelessWidget {
                 })
               )
             ]
-        )
       );
 
   }
@@ -80,51 +80,40 @@ class DetailsWrapper extends StatelessWidget {
       final skier = gs.bundle.value.skiers[id];
       return AnimatedSwitcher(
           duration: Duration(milliseconds: 500),
-          child:          skier == null ? ListSummary(data) : SkierDetails(skier)
+          child: ClosableDetails(
+              closable: skier != null,
+              title: skier == null ?  'Current Filter: ${filterContext.skierFilter.toString()} Skiers in List: ${data.length}' :'Skier Details',
+              child: skier == null ? ListSummaryDetails(data: data) :  SkierDetails(skier))
       );
     });
   }
 }
 
-class ListSummary extends StatelessWidget {
-  ListSummary(this.data);
-  final List data;
+
+class ClosableDetails extends StatelessWidget {
+  final bool closable;
+  final String title;
+  final Widget child;
+
+  const ClosableDetails({Key key, this.title, this.child, this.closable}) : super(key: key);
   @override
   Widget build(BuildContext ctx) {
-
-
-    return Column(
-        children: [
-          ListSummaryHeader(data: data),
-          ListSummaryDetails(data: data)
-    ]);
+    return PaddedCard(child:Column(children: <Widget>[
+      Container(
+          color: Colors.white30,
+          child: Row(children:[
+          Expanded(child:Center(child:Text(title, style: TextStyle(color: Colors.grey,fontSize: 20),))),
+            closable ? FlatButton(child: Icon(Icons.close), onPressed: () {
+            final filterContext = Provider.of<SkierFilterContextModel>(ctx);
+            filterContext.selectedSkierId = -1;
+          },): Container()
+      ])),
+      Expanded(
+        child: Container(child: child)
+    )
+    ]));
   }
 
-
-}
-
-class ListSummaryHeader extends StatelessWidget {
-  const ListSummaryHeader({
-    Key key,
-    @required this.data,
-  }) : super(key: key);
-
-  final List data;
-
-  @override
-  Widget build(BuildContext ctx) {
-    final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-
-    return Row( children: [Expanded(child:Container(
-        child: Column( children: [Text('Current Filter: ${filterContext.skierFilter.toString()}'), Text('Skiers in List: ${data.length}') ]),
-        margin: EdgeInsets.all(5),
-        padding: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(30.0)
-        )
-    ))]);
-  }
 }
 
 
@@ -139,14 +128,8 @@ class ListSummaryDetails extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
 
-    return Expanded(child:Container(
+    return Expanded(child:PaddedCard(
       child: SummaryPointsGraph(data),
-    margin: EdgeInsets.all(5),
-    padding: EdgeInsets.all(5.0),
-    decoration: BoxDecoration(
-      border: Border.all(),
-      borderRadius: BorderRadius.circular(30.0)
-    )
     ));
   }
 }
@@ -168,7 +151,7 @@ class SummaryPointsGraph extends StatelessWidget {
                   measureFn: (it, _) => it.value.length,
                   data: dataBy);
 
-      return charts.BarChart([ts], behaviors: [charts.ChartTitle('# Skiers by Age in Years', subTitle: 'Total Skiers: ${data.length}')],);
+      return charts.BarChart([ts], behaviors: [charts.ChartTitle('# Skiers by Age in Years')],);
     });
   }
   }

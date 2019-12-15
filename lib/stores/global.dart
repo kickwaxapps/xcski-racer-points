@@ -23,6 +23,7 @@ abstract class _Global with Store {
             : List<Skier>());
   }
 
+
   @observable
   ObservableFuture<Bundle> bundle;
 
@@ -30,4 +31,9 @@ abstract class _Global with Store {
   void loadBundle() {
     bundle = ObservableFuture(fetchBundle());
   }
+
+  List<Skier> get skiers => bundle.value.skiers.values.toList();
+
+  @observable
+  Function addFreeFormListBuilder;
 }

@@ -1,5 +1,6 @@
 
 import 'package:xcp/stores/global.dart';
+import 'package:xcp/tabs/free-form-list-builder.dart';
 import 'package:xcp/tabs/points-list.dart';
 import 'package:xcp/tabs/race-results-list.dart';
 import 'package:xcp/tabs/skier-details.dart';
@@ -41,6 +42,9 @@ class ListTab extends StatelessWidget {
         return SkierDetails(model.skier);
       case TAB_RACE_DETAILS:
         return RaceResultsList(model.raceId);
+      case TAB_LIST_BUILDER:
+        return FreeFormListBuilder();
+
       default:
         return Text('error');
     }

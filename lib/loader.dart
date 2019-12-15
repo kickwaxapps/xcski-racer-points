@@ -1,9 +1,9 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:xcp/db.dart';
 import 'package:xcp/models/race-result.dart';
 import 'package:xcp/models/race.dart';
+import 'package:xcp/models/rolling-points.dart';
 import 'package:xcp/models/skier-points.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -11,26 +11,40 @@ import 'package:http/http.dart' as http;
 import 'package:xcp/models/bundle.dart';
 
 import 'package:xcp/models/skier-race.dart';
+import 'package:xcp/models/skier.dart';
 
 
 
 Future<Bundle> fetchBundle() async {
-  final db =  DB();
+    List<Future<Object>> w = [ getInit(), getRollingPoints()];
+    List<Object> f = await Future.wait<Object>(w);
+    DB().endBig();
+    Bundle bundle = f[0] as Bundle;
+    List<RollingPoints> rp = f[1] as List<RollingPoints>;
 
+
+    rp.forEach((it) {
+      final skier = bundle.skiers[it.skierId];
+      skier.updateRolling(it.discipline, it.points);
+    });
+    return bundle;
+}
+
+Future<Bundle> getInit() async {
+  final db =  DB();
   await db.beginBig();
-  try {
-    String data = await db.getBig('bundle');
-    var response;
-    if (data.isEmpty) {
-      response = await http.get('https://www.xcracer.info/api/init3');
-      await db.setBig('bundle', response.body);
-      data = response.body;
-    }
-    return compute(parseBundle, data);
+  String data = await db.getBig('bundle');
+  if (data.isEmpty) {
+    final response = await http.get('https://www.xcracer.info/api/init4');
+    db.setBig('bundle', response.body);
+    data = response.body;
   }
-  finally {
-    db.endBig();
-  }
+  return compute(parseBundle, data);
+}
+
+Future<List<RollingPoints>> getRollingPoints() async {
+  final response = await http.get('https://www.xcracer.info/api/rollingPoints3');
+  return compute(parseRollingPoints, response.body);
 }
 
 
@@ -39,6 +53,14 @@ Bundle parseBundle(String data) {
   final parsed = json.decode(data);
   return  Bundle.fromJson(parsed);
 }
+
+List<RollingPoints> parseRollingPoints(String data) {
+  final parsed = json.decode(data);
+  return  RollingPoints.fromListJson(parsed);
+}
+
+
+
 
 
 Future<List<SkierRace>> fetchSkierRaces(id) async {

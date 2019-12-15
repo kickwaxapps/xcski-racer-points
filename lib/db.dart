@@ -14,6 +14,8 @@ class DB {
     return _instance;
   }
 
+  List<Future> _ops = List();
+
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
@@ -33,6 +35,8 @@ class DB {
 
   Box _prefs;
 
+  Future _F;
+
   getPref(key, {String defaultValue:''}) {
     final String cv= _prefs.get(key, defaultValue:defaultValue);
     return cv.isNotEmpty ? _dcmp(cv) : '';
@@ -43,7 +47,9 @@ class DB {
   }
 
   Future<Box> get _openBigBox async {
-    return Hive.openBox('data');
+    final op = Hive.openBox('data');
+    _ops.add(op);
+    return op;
   }
 
   Box _big;
@@ -53,18 +59,26 @@ class DB {
   }
 
   Future endBig() async {
+    await Future.wait<Object>(_ops);
+    _ops.clear();
     await _big.compact();
-    await _big.close();
+    _big.close();
   }
 
   Future<String> getBig(String key) {
     final String value = _big.get(key, defaultValue: '');
-    return value.isNotEmpty ? compute(_dcmp, value) : Future.value('');
+    final op =  value.isNotEmpty ? compute(_dcmp, value) : Future.value('');
+    _ops.add(op);
+    return op;
   }
 
   Future setBig(String key, String value) async {
-    final cmpValue = await compute(_cmp, value);
-    await _big.put(key, cmpValue);
+    final op0 = compute(_cmp, value);
+    _ops.add(op0);
+    final cmpValue = await op0;
+    final op = _big.put(key, cmpValue);
+    _ops.add(op);
+    return  op;
   }
 
 }

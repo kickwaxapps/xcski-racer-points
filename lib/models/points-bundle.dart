@@ -1,7 +1,9 @@
 
 import 'dart:collection';
 
+import 'package:xcp/models/rolling-points.dart';
 import 'package:xcp/models/skier-points.dart';
+import 'package:xcp/models/skier.dart';
 
 class PointListDetail {
   final int id;
@@ -41,22 +43,51 @@ class PointsBundle {
   final Map distance;
   final Map sprint;
 
+  Map<int, RollingPoints> _rollingPoints;
+
+
   PointsBundle({this.maleDistance, this.maleSprint, this.femaleDistance, this.femaleSprint, this.distance, this.sprint});
 
-  factory PointsBundle.fromJson(Map<String, dynamic> json) {
+  factory PointsBundle.fromJson(Map<String, dynamic> json, Map<int, Skier> skiers) {
 
-    var distancePoints =  (json['D'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json)).where((it)=>it.raceCount > 0);
-    var sprintPoints =  (json['S'] as List).map<SkierPoints>((json)=> SkierPoints.fromJson(json)).where((it)=>it.raceCount > 0);
+
+    final D = json['D'];
+    final bindPoints = (Map<String, dynamic> json, Function(int id, String n, double pt, int cnt) fn ) {
+      final ids = json['skier_id'] as List;
+      final nations = json['nation'] as List;
+      final pts = json['avg_points'] as List;
+      final totals = json['total_points'] as List;
+      final counts = json['race_count'] as List;
+
+      for (int i = 0; i < ids.length; i++) {
+        final int skierId = ids[i] as int;
+        final String nation = nations[i] as String;
+        final double pt = pts[i] as double;
+        final double total = totals[i] as double;
+        final int count = counts[i] as int;
+        fn(skierId, nation, pt, count);
+      }
+    };
+
+    bindPoints(json['D'], (id, n,pt,cnt){
+      skiers[id].distancePoints = SkierPoints(n,Points(pt,cnt), Points.none);
+    });
+
+    bindPoints(json['S'], (id, n,pt,cnt){
+      skiers[id].sprintPoints = SkierPoints(n,Points(pt,cnt), Points.none);
+    });
+
 
     return PointsBundle( 
       maleDistance: PointListDetail.fromJson(json['l'][0]),
       maleSprint: PointListDetail.fromJson(json['l'][1]),
       femaleDistance: PointListDetail.fromJson(json['l'][2]),
       femaleSprint: PointListDetail.fromJson(json['l'][3]),
-      distance: HashMap<int,SkierPoints>.fromIterable(distancePoints, key: (v)=> v.skierId, value: (v)=>v ),
-      sprint: HashMap<int,SkierPoints>.fromIterable(sprintPoints, key: (v)=> v.skierId, value: (v)=>v )
     );
+  }
 
+  setRollingPoints(Map value) {
+    _rollingPoints = value;
   }
 
 

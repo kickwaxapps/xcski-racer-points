@@ -4,6 +4,7 @@ import 'package:xcp/models/points-bundle.dart';
 import 'package:xcp/widgets/label-value.dart';
 
 import 'package:date_format/date_format.dart';
+import 'package:xcp/widgets/padded-card.dart';
 
 
 class PointsInfo extends StatelessWidget {
@@ -30,10 +31,13 @@ class PointsInfo extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text('Loaded Point Lists'),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('Loaded Point Lists', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+        ),
         SizedBox(
+          height: 160,
           // you may want to use an aspect ratio here for tablet support
-          height: 200.0,
           child: PageView.builder(
             // store this controller in a State to save the carousel scroll position
             controller: PageController(viewportFraction: 0.8),
@@ -49,26 +53,25 @@ class PointsInfo extends StatelessWidget {
   Widget _item(ctx, carouselIndex, itemIndex) {
     final details = _details[itemIndex % 4];
     final dtFmt = (dt) => formatDate(dt, [mm, '/', dd, '/', yy]);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
+    return Center(
+      child: PaddedCard(
+            child: Column(
+              children: [ Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(details.title),
+              ),
+               ...LabelValue.fromList([
+                 ['Published', dtFmt(details.pubDate)],
+                [details.sex == 'M' ? 'Men\'s' : 'Women\'s', details.sprintOrDistance == 'S' ? 'Sprint' : 'Distance'],
+                ['Type', details.type],
+                ['Races From', dtFmt(details.fromDate)],
+                ['Races To', dtFmt(details.toDate)]
+
+                ],
+
+                   100).map((it)=>Row(children: [it],))
+            ],)  ,
           ),
-          child: Column(
-            children: [ Text(details.title),
-             ...LabelValue.fromList([
-               ['Published', dtFmt(details.pubDate)],
-              [details.sex == 'M' ? 'Men\'s' : 'Women\'s', details.sprintOrDistance == 'S' ? 'Sprint' : 'Distance'],
-              ['Type', details.type],
-              ['Races From', dtFmt(details.fromDate)],
-              ['Races To', dtFmt(details.toDate)]
-
-              ],
-
-                 100).map((it)=>Row(children: [it],))
-          ],)  ,
-        ));
+    );
   }
 }

@@ -1,4 +1,6 @@
+import 'package:xcp/models/club.dart';
 import 'package:xcp/models/race-result.dart';
+import 'package:xcp/models/skier.dart';
 import 'package:xcp/stores/global.dart';
 import 'package:xcp/tabs/filter-tabbar-model.dart';
 import 'package:xcp/tabs/list-tab-model.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:xcp/widgets/PageContextWrapper.dart';
+import 'package:xcp/widgets/padded-card.dart';
 
 class RaceResultsList extends StatelessWidget {
   RaceResultsList(raceId) : model = RaceResultsListModel(raceId);
@@ -91,14 +94,11 @@ class RaceDetailsWrapper extends StatelessWidget {
       race.pointsReference.toStringAsFixed(3)
     ].where((it) => it.length > 0).map((it) => Text(it)).toList();
 
-    return Card(
-        child: Container(
-            padding: EdgeInsets.all(10),
-            child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Column(
+    return PaddedCard(
+        child: Row(
+                children:[ Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: texts))));
+                    children: texts)]));
   }
 }
 
@@ -106,7 +106,7 @@ class RaceResultsWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final model = Provider.of<RaceResultsListModel>(ctx);
-    return Observer(builder: (_) {
+    return PaddedCard(child: Observer(builder: (_) {
       switch (model.results.status) {
         case FutureStatus.fulfilled:
           return getList(ctx, model.results.value);
@@ -117,20 +117,21 @@ class RaceResultsWrapper extends StatelessWidget {
           return Text(model.results.error as String);
           break;
       }
-    });
+    }));
   }
 
   Widget getList(ctx, List<RaceResult> data) {
     final global = Provider.of<GlobalStore>(ctx);
     final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-
+    final winner = data[0];
     return ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: data.length,
         itemBuilder: (_, index) {
           final rr = data[index];
-          final skier = global.bundle.value.skiers[rr.skierId];
-          final club = skier.club;
+          final Skier skier = global.bundle.value.skiers[rr.skierId] ?? Skier.notInPointsList(rr.skierId);
+          final Club club = skier.club;
+
 
           final s = rr.timeSeconds;
           final timeMMSS =
@@ -170,17 +171,20 @@ class RaceResultsWrapper extends StatelessWidget {
                         },
                         leading: Text((index + 1).toString()),
                         title: Text(
-                          '${skier.firstname + ' ' + skier.lastname + ' `' + skier.yob.toString().substring(2)}',
+                          '${skier.firstname + ' ' + skier.lastname + ' `' + (skier.yob > 0 ? skier.yob.toString().substring(2) : '') }' ,
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
-                          club.isNone
+                          (club.isNone)
                               ? skier.nation
                               : club.name + ', ' + club.province,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing:
-                            Column(children: [Text(timeMMSS), Text(diffMMSS)])),
+                            Column( crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [Text(timeMMSS),
+                                              index == 0 ? null : Text(diffMMSS, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                                              Text('${rr.points}pts', style: TextStyle(fontSize: 10, color: Colors.grey))].where((it)=>it != null).toList() )),
                   ));
         });
   }

@@ -9,9 +9,9 @@ enum PointsDiscipline {distance, sprint, combined}
 
 
 class Skier {
-  final SkierPoints distancePoints;
-  final SkierPoints sprintPoints;
-  final SkierPoints combinedPoints;
+  SkierPoints distancePoints = SkierPoints.none;
+  SkierPoints sprintPoints =  SkierPoints.none;
+
 
   final Club club;
 
@@ -47,55 +47,55 @@ class Skier {
   }
 
 List<double> allPointDataFor({PointsDiscipline discipline , PointsListType type} ){
-    final pts = pointsFor(discipline);
-    if (type == PointsListType.lastPublished) {
-        return [pts.totalPoints, pts.avgPoints, pts.raceCount * 1.0];
-    }
+    final skierPts = pointsFor(discipline);
+    final pts = type == PointsListType.rolling ?  skierPts.rolling : skierPts.cpl;
+    return [pts.total, pts.avg, pts.raceCount * 1.0];
+}
 
-    return [pts.rollingTotalPoints, pts.rollingAvgPoints, pts.rollingRaceCount * 1.0];
 
+  double avgPointsFor(PointsDiscipline pd, PointsListType type) {
+    final skierPts = pointsFor(pd);
+    final pts = type == PointsListType.rolling ?  skierPts.rolling : skierPts.cpl;
+    return pts.avg;
   }
 
+  SkierPoints get combinedPoints  => SkierPoints(
+      distancePoints.nation,
+      Points(distancePoints.cpl.avg * 0.7 +sprintPoints.cpl.avg * 0.3, distancePoints.cpl.raceCount + sprintPoints.cpl.raceCount),
+      Points(distancePoints.rolling.avg * 0.7 +sprintPoints.rolling.avg * 0.3, distancePoints.rolling.raceCount + sprintPoints.rolling.raceCount),
+  );
 
-  double avgPointsFor(PointsDiscipline pd, PointsListType pt) {
-    final skierPoints = pointsFor(pd);
+  Skier({this.id, this.firstname, this.lastname, this.sex, this.yob, this.club});
 
-    switch (pt) {
-      case PointsListType.lastPublished:
-        return skierPoints.avgPoints;
-      case PointsListType.rolling:
-      default:
-        return skierPoints.avgPoints;
-    }
-
+  factory Skier.notInPointsList(int id) {
+    return Skier(id: id, firstname: id.toString(), lastname:'New Skier', yob:0, club: Club(id:575));
   }
 
-  Skier({this.id, this.firstname, this.lastname, this.sex, this.yob, this.distancePoints, this.sprintPoints, this.club}):
-    combinedPoints = SkierPoints(
-        nation: distancePoints.nation,
-        skierId: distancePoints.skierId,
-        avgPoints: distancePoints.avgPoints * 0.7 +sprintPoints.avgPoints * 0.3,
-        totalPoints: distancePoints.totalPoints * 0.7 +sprintPoints.totalPoints * 0.3,
-        raceCount: distancePoints.raceCount + sprintPoints.raceCount,
-        rollingAvgPoints: distancePoints.rollingAvgPoints * 0.7 + sprintPoints.rollingAvgPoints * 0.3,
-        rollingRaceCount: distancePoints.rollingRaceCount + sprintPoints.rollingRaceCount
-    )
-  ;
-
-  factory Skier.fromJson(Map<String, dynamic> json, PointsBundle points, Map clubs) {
+  factory Skier.fromJson(Map<String, dynamic> json, Map clubs) {
     int id = json['id'] as int,
         currentClubId = json['current_club_id'] as int;
 
     return Skier(
       id: id,
-      distancePoints: points.distance[id] ?? SkierPoints(skierId: id),
-      sprintPoints: points.sprint[id] ?? SkierPoints(skierId: id),
       club: clubs[currentClubId] ?? Club(),
       firstname: json['firstname'] as String,
       lastname: json['lastname'] as String,
       sex: json['sex'] as String,
       yob: json['yob'] as int,
     );
+  }
+
+  void updateRolling(PointsDiscipline discipline, Points points) {
+    final SkierPoints cp = discipline == PointsDiscipline.distance ? distancePoints : sprintPoints;
+    final SkierPoints newPts = SkierPoints.copy(cp);
+    newPts.updateRolling(points);
+    if (discipline == PointsDiscipline.distance) {
+      distancePoints = newPts;
+    } else {
+      sprintPoints = newPts;
+    }
+
+
   }
 
 

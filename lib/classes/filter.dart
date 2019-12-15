@@ -64,7 +64,7 @@ class SkierFilter {
     final sexC = sex > 0 ? ["F", "M"][sex - 1] : '',
         ss = removeDiacritics(searchString.trim().toLowerCase()),
         test = (Skier s) {
-          if (s.distancePoints.avgPoints == null) return false;
+         // if (s.distancePoints.cpl == null) return false;
           if (sex > 0 && s.sex != sexC) return false;
           if (yobs.length > 0 && !yobs.contains(s.yob)) return false;
           if (regions.length > 0 && !regions.contains(s.club.province ?? 'XX')) return false;

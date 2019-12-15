@@ -1,6 +1,7 @@
 
 
 import 'package:xcp/db.dart';
+import 'package:xcp/stores/global.dart';
 import 'package:xcp/tabs/filter-form/filter.dart';
 import 'package:xcp/tabs/filter-tabbar-model.dart';
 import 'package:xcp/tabs/list-tab-model.dart';
@@ -30,8 +31,8 @@ class _FilterTabbarState extends State<FilterTabbar>
      final db = DB();
      final tabs = db.getPref('tabs');
      final layout = tabs.isEmpty ? defaultLayout : json.decode(tabs);
-     model = FilterTabbarModel(this,layout,context);
 
+     model = FilterTabbarModel(this,layout,context);
     super.initState();
   }
   @override
@@ -52,7 +53,12 @@ class _FilterTabbarState extends State<FilterTabbar>
 
 
   Widget body() {
-      final db = DB();
+
+     final global = Provider.of<GlobalStore>(context);
+
+     global.addFreeFormListBuilder = () => model.addTab(type: TAB_LIST_BUILDER);
+
+    final db = DB();
       final x = Observer(name: 'serializer', builder: (ctx) {
         db.setPref('tabs', json.encode(model.toJson));
         final v = db.getPref('tabs');
@@ -90,7 +96,7 @@ class _FilterTabbarState extends State<FilterTabbar>
                                       ),
                                     ),
                                     tabs: () {
-                                      final tabIcons = [Icons.filter_list, Icons.contacts, Icons.recent_actors];
+                                      final tabIcons = [Icons.filter_list, Icons.contacts, Icons.recent_actors, Icons.query_builder];
                                       final x = List.generate(
                                           model.count,
                                               (i) =>

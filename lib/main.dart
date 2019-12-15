@@ -54,12 +54,12 @@ class _PointsViewerState extends State<PointsViewer> with SingleTickerProviderSt
             appBar: AppBar(
                 title: Text('XCRacer'),centerTitle: true,
             ),
-            drawer: DrawWidget(),
+            drawer: DrawerWidget(),
             body: SafeArea(child: BodyWidget())),
       );
 }
 
-class DrawWidget extends StatelessWidget {
+class DrawerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) =>
       Observer(builder: (_) {
@@ -88,6 +88,9 @@ class DrawWidget extends StatelessWidget {
                     details.femaleSprint
                   ])),
                   Divider(),
+                  ListTile(
+                      title: Text('Add Free Form'), trailing: Icon(Icons.add_circle), onTap: () => global.addFreeFormListBuilder()),
+                  Divider(),
                   CombinedConfig(),
                   Divider(),
                   AboutListTile()
@@ -104,7 +107,6 @@ class BodyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) => Observer(builder: (_) {
         final global = Provider.of<GlobalStore>(ctx);
-
         switch (global.bundle.status) {
           case FutureStatus.pending:
             return Center(

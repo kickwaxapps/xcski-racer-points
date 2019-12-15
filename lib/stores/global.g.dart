@@ -26,6 +26,26 @@ mixin _$GlobalStore on _Global, Store {
     }, _$bundleAtom, name: '${_$bundleAtom.name}_set');
   }
 
+  final _$addFreeFormListBuilderAtom =
+      Atom(name: '_Global.addFreeFormListBuilder');
+
+  @override
+  Function get addFreeFormListBuilder {
+    _$addFreeFormListBuilderAtom.context
+        .enforceReadPolicy(_$addFreeFormListBuilderAtom);
+    _$addFreeFormListBuilderAtom.reportObserved();
+    return super.addFreeFormListBuilder;
+  }
+
+  @override
+  set addFreeFormListBuilder(Function value) {
+    _$addFreeFormListBuilderAtom.context.conditionallyRunInAction(() {
+      super.addFreeFormListBuilder = value;
+      _$addFreeFormListBuilderAtom.reportChanged();
+    }, _$addFreeFormListBuilderAtom,
+        name: '${_$addFreeFormListBuilderAtom.name}_set');
+  }
+
   final _$_GlobalActionController = ActionController(name: '_Global');
 
   @override
