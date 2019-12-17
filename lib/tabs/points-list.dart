@@ -12,6 +12,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:provider/provider.dart';
 import 'package:xcp/widgets/PageContextWrapper.dart';
+import 'package:xcp/widgets/closable-details.dart';
 import 'package:xcp/widgets/padded-card.dart';
 
 
@@ -90,31 +91,7 @@ class DetailsWrapper extends StatelessWidget {
 }
 
 
-class ClosableDetails extends StatelessWidget {
-  final bool closable;
-  final String title;
-  final Widget child;
 
-  const ClosableDetails({Key key, this.title, this.child, this.closable}) : super(key: key);
-  @override
-  Widget build(BuildContext ctx) {
-    return PaddedCard(child:Column(children: <Widget>[
-      Container(
-          color: Colors.white30,
-          child: Row(children:[
-          Expanded(child:Center(child:Text(title, style: TextStyle(color: Colors.grey,fontSize: 20),))),
-            closable ? FlatButton(child: Icon(Icons.close), onPressed: () {
-            final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-            filterContext.selectedSkierId = -1;
-          },): Container()
-      ])),
-      Expanded(
-        child: Container(child: child)
-    )
-    ]));
-  }
-
-}
 
 
 class ListSummaryDetails extends StatelessWidget {

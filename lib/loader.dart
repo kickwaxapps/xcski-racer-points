@@ -33,10 +33,10 @@ Future<Bundle> fetchBundle() async {
 Future<Bundle> getInit() async {
   final db =  DB();
   await db.beginBig();
-  String data = await db.getBig('bundle');
+  String data = await db.getBig('bundle_v1');
   if (data.isEmpty) {
     final response = await http.get('https://www.xcracer.info/api/init4');
-    db.setBig('bundle', response.body);
+    db.setBig('bundle_v1', response.body);
     data = response.body;
   }
   return compute(parseBundle, data);
