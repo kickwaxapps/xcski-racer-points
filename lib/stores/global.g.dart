@@ -49,10 +49,10 @@ mixin _$GlobalStore on _Global, Store {
   final _$_GlobalActionController = ActionController(name: '_Global');
 
   @override
-  void loadBundle() {
+  void loadBundle({dynamic forceReload = false}) {
     final _$actionInfo = _$_GlobalActionController.startAction();
     try {
-      return super.loadBundle();
+      return super.loadBundle(forceReload: forceReload);
     } finally {
       _$_GlobalActionController.endAction(_$actionInfo);
     }

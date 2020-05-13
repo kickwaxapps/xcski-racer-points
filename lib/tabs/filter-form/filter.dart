@@ -143,12 +143,10 @@ class ChipFilters  extends FilterItem {
 
   List getSexes(ctx) {
     final filter = Provider.of<FilterModel>(ctx);
-    final filterContext = Provider.of<SkierFilterContextModel>(ctx);
-
     final cbs = [1, 2]
         .map((it) => Observer(
-            name: 'sexFilter',
             builder: (_) {
+              final filterContext = Provider.of<SkierFilterContextModel>(ctx);
               var sex = filterContext.skierFilter.sex;
               return FilterChip(
                   avatar: CircleAvatar(child: Text('')),
@@ -282,7 +280,6 @@ class SearchString  extends FilterItem {
 Observer makeChip(
     SkierFilterContextModel filterContext, FilterModel filter, it) {
   return Observer(
-      name: 'makeChip',
       builder: (_) {
         return FilterChip(
             avatar: CircleAvatar(child: Text('')),

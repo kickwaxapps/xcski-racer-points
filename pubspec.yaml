@@ -11,7 +11,7 @@ description: Canadian Cross Country Skiing Points.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.0+9
+version: 1.2.2+14
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -21,30 +21,33 @@ dependencies:
     sdk: flutter
 
   http: ^0.12.0+2
-  mobx: ^0.3.8+1
-  flutter_mobx:  ^0.3.3+1
-  provider: ^3.2.0
-  charts_flutter: ^0.8.1
+  mobx: ^1.1.1
+  flutter_mobx:  ^1.1.0
+  provider: ^4.1.0
+  charts_flutter: ^0.9.0
   collection: ^1.14.11
 
   date_format: ^1.0.8
-  hive: ^1.1.1
-  hive_flutter: any
-  path_provider: ^1.4.0
+  hive: ^1.4.1+1
+  hive_flutter: ^0.3.0+2
   lzstring: ^1.0.1+2
   diacritic: ^0.1.1
   share: ^0.6.3+4
+  url_launcher: ^5.4.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
+
+dependency_overrides:
+  path: ^1.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:  ^1.6.2
   build_web_compilers: ^2.0.0
-  mobx_codegen:  ^0.3.9+1
+  mobx_codegen:  ^1.0.3
   flutter_launcher_icons: ^0.7.3
 
 flutter_icons:
@@ -72,6 +75,7 @@ flutter:
 
   assets:
     - assets/img/
+    - assets/manifest.webmanifest
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

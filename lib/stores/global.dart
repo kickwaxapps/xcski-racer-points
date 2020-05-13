@@ -28,8 +28,8 @@ abstract class _Global with Store {
   ObservableFuture<Bundle> bundle;
 
   @action
-  void loadBundle() {
-    bundle = ObservableFuture(fetchBundle());
+  void loadBundle({forceReload: false}) {
+    bundle = ObservableFuture(fetchBundle(forceReload));
   }
 
   List<Skier> get skiers => bundle.value.skiers.values.toList();

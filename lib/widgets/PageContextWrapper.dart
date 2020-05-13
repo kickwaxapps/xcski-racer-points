@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:xcp/classes/filter.dart';
 import 'package:xcp/stores/global.dart';
 import 'package:xcp/tabs/skier-filter-context-model.dart';
 

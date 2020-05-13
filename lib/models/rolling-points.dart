@@ -1,4 +1,3 @@
-import 'dart:collection';
 
 import 'package:xcp/models/skier-points.dart';
 import 'package:xcp/models/skier.dart';

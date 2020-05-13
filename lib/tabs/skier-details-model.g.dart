@@ -88,4 +88,51 @@ mixin _$SkierDetailsModel on _SkierDetailsModel, Store {
       _$timeFilterAtom.reportChanged();
     }, _$timeFilterAtom, name: '${_$timeFilterAtom.name}_set');
   }
+
+  final _$filterFromAtom = Atom(name: '_SkierDetailsModel.filterFrom');
+
+  @override
+  DateTime get filterFrom {
+    _$filterFromAtom.context.enforceReadPolicy(_$filterFromAtom);
+    _$filterFromAtom.reportObserved();
+    return super.filterFrom;
+  }
+
+  @override
+  set filterFrom(DateTime value) {
+    _$filterFromAtom.context.conditionallyRunInAction(() {
+      super.filterFrom = value;
+      _$filterFromAtom.reportChanged();
+    }, _$filterFromAtom, name: '${_$filterFromAtom.name}_set');
+  }
+
+  final _$filterToAtom = Atom(name: '_SkierDetailsModel.filterTo');
+
+  @override
+  DateTime get filterTo {
+    _$filterToAtom.context.enforceReadPolicy(_$filterToAtom);
+    _$filterToAtom.reportObserved();
+    return super.filterTo;
+  }
+
+  @override
+  set filterTo(DateTime value) {
+    _$filterToAtom.context.conditionallyRunInAction(() {
+      super.filterTo = value;
+      _$filterToAtom.reportChanged();
+    }, _$filterToAtom, name: '${_$filterToAtom.name}_set');
+  }
+
+  final _$_SkierDetailsModelActionController =
+      ActionController(name: '_SkierDetailsModel');
+
+  @override
+  dynamic setTimeFilter(TimeFilter tf, DateTime fromDt, DateTime toDt) {
+    final _$actionInfo = _$_SkierDetailsModelActionController.startAction();
+    try {
+      return super.setTimeFilter(tf, fromDt, toDt);
+    } finally {
+      _$_SkierDetailsModelActionController.endAction(_$actionInfo);
+    }
+  }
 }

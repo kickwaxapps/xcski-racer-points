@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:xcp/models/skier.dart';
 import 'package:xcp/stores/global.dart';
 import 'package:xcp/tabs/filter-tabbar-model.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:provider/provider.dart';
+import 'package:xcp/utils.dart';
 import 'package:xcp/widgets/PageContextWrapper.dart';
 import 'package:xcp/widgets/closable-details.dart';
 import 'package:xcp/widgets/padded-card.dart';
@@ -58,7 +60,14 @@ class PointsList extends StatelessWidget {
       isLargeScreen  = MQ.size.width > 600 ? true : false;
     return Row(
       children: [
-        Expanded(flex: 3, child: getPointsList(ctx, data, isLargeScreen)),
+        Expanded(flex: 3, child: Listener(
+            onPointerUp: (PointerUpEvent e){
+              print(e);
+              print(e.buttons);
+
+            },
+            child: getPointsList(ctx, data, isLargeScreen))
+        ),
         isLargeScreen ? Expanded(flex: 7 , child: DetailsWrapper(data)) : Container()
       ],
     );
@@ -83,11 +92,27 @@ class DetailsWrapper extends StatelessWidget {
           duration: Duration(milliseconds: 500),
           child: ClosableDetails(
               closable: skier != null,
+              options: kIsWeb ? FlatButton( child: Icon(Icons.file_download),  onPressed: ()=> exportList(filterContext.skierFilter.filterName(), data)) : null,
               title: skier == null ?  'Current Filter: ${filterContext.skierFilter.toString()} Skiers in List: ${data.length}' :'Skier Details',
               child: skier == null ? ListSummaryDetails(data: data) :  SkierDetails(skier))
       );
     });
   }
+}
+
+exportList(String baseName, List<Skier> data) {
+
+  String line = '';
+  String header = 'cplId,firstName,lastName,sex,yob,club,distancePoints,distanceRaceCount,sprintPoints,sprintRaceCount,rollingDistancePoints,rollingDistanceRaceCount,rollingSprintPoints,rollingSprintRaceCount';
+  String csv = header + '\n';
+
+  data.forEach((it){
+     line = '${it.id}, "${it.firstname}", "${it.lastname}", ${it.sex}, ${it.yob}, "${it.clubCountry}", ${it.distancePoints.cpl.avg}, ${it.distancePoints.cpl.raceCount}, ${it.sprintPoints.cpl.avg}, ${it.sprintPoints.cpl.raceCount}, ${it.distancePoints.rolling.avg}, ${it.distancePoints.rolling.raceCount}, ${it.sprintPoints.rolling.avg}, ${it.sprintPoints.rolling.raceCount}';
+     csv += line + '\n';
+  });
+
+  listDownload('Skier Points $baseName.csv', csv);
+
 }
 
 
@@ -105,9 +130,9 @@ class ListSummaryDetails extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
 
-    return Expanded(child:PaddedCard(
+    return PaddedCard(
       child: SummaryPointsGraph(data),
-    ));
+    );
   }
 }
 
@@ -119,7 +144,6 @@ class SummaryPointsGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) {
-    return Observer(builder: (_) {
       final dataBy = groupBy<Skier, int>(data, (it) => it.age).entries.where((it)=>it.key < 100).toList();
           dataBy.sort((a,b) => a.key.compareTo(b.key));
       final ts =  charts.Series<MapEntry, String>(
@@ -129,8 +153,7 @@ class SummaryPointsGraph extends StatelessWidget {
                   data: dataBy);
 
       return charts.BarChart([ts], behaviors: [charts.ChartTitle('# Skiers by Age in Years')],);
-    });
-  }
+    }
   }
 
 
@@ -169,7 +192,7 @@ Widget getPointsList(ctx, List<Skier> data, bool wideScreen) {
                 },
 
                 onLongPress: () {
-                  final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                  final tbModel = Provider.of<FilterTabbarModel>(ctx, listen: false);
                   tbModel.addTab(type: TAB_SKIER_DETAILS, skier: skier);
                 },
                 leading: Text((index + 1).toString()),

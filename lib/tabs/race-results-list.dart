@@ -1,7 +1,5 @@
 import 'dart:math';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:charts_flutter/flutter.dart';
-import 'package:collection/collection.dart';
 import 'package:xcp/models/club.dart';
 import 'package:xcp/models/race-result.dart';
 import 'package:xcp/models/race.dart';
@@ -21,8 +19,7 @@ import 'package:xcp/widgets/PageContextWrapper.dart';
 import 'package:xcp/widgets/closable-details.dart';
 import 'package:xcp/widgets/padded-card.dart';
 
-import 'package:charts_flutter/src/text_element.dart';
-import 'package:charts_flutter/src/text_style.dart' as style;
+//import 'package:charts_flutter/src/text_style.dart' as style;
 
 
 class RaceResultsList extends StatelessWidget {
@@ -38,8 +35,7 @@ class RaceResultsList extends StatelessWidget {
     final MQ = MediaQuery.of(ctx),
         isLargeScreen = MQ.size.width > 600 ? true : false;
 
-    return Observer(
-        builder: (_) => Column(children: [
+    return Column(children: [
               Expanded(
                   child: Row(
                 children: [
@@ -54,7 +50,7 @@ class RaceResultsList extends StatelessWidget {
                       : Container()
                 ],
               ))
-            ]));
+            ]);
   }
 }
 
@@ -79,8 +75,8 @@ class RaceSummary extends StatelessWidget {
       final model = Provider.of<RaceResultsListModel>(ctx);
       final global = Provider.of<GlobalStore>(ctx);
       final results = model.results, race = model.race;
-      final data = model.results.value;
-      final meta = model.race.value;
+      final data = results.value;
+      final meta = race.value;
       if (data == null || meta == null)   return Text('...');
       final wt = data[0].timeSeconds;
       final tot = data.map((it)=>it.timeSeconds).reduce((it, c) => it + c);
@@ -241,23 +237,25 @@ class RaceSummaryGraph extends StatelessWidget {
 }
 
 
-class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
+class CustomCircleSymbolRenderer extends charts.CircleSymbolRenderer {
 @override
-void paint(ChartCanvas canvas, Rectangle<num> bounds, {List<int> dashPattern, Color fillColor, Color strokeColor, double strokeWidthPx}) {
-  super.paint(canvas, bounds, dashPattern: dashPattern, fillColor: fillColor, strokeColor: strokeColor, strokeWidthPx: strokeWidthPx);
+void paint(charts.ChartCanvas canvas, Rectangle<num> bounds, {List<int> dashPattern, fillColor, strokeColor, fillPattern, double strokeWidthPx}) {
+  super.paint(canvas, bounds, dashPattern: dashPattern,   strokeWidthPx: strokeWidthPx);
   canvas.drawRect(
       Rectangle(bounds.left - 5, bounds.top - 30, bounds.width + 10, bounds.height + 10),
-      fill: Color.white
+      fill: charts.Color.white
   );
-  print('bye');
-  var textStyle = style.TextStyle();
+  return;
+/*
+  var textStyle = charts.TextStyle();
   textStyle.color = Color.black;
   textStyle.fontSize = 15;
   canvas.drawText(
-      TextElement("1", style: textStyle),
+      charts.TextElement("1", style: textStyle),
       (bounds.left).round(),
       (bounds.top - 28).round()
   );
+*/
 }
 }
 
@@ -270,7 +268,6 @@ class RaceDataWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) {
-    final model = Provider.of<RaceResultsListModel>(ctx);
     return Observer(builder: (_) {
       switch (future.status) {
         case FutureStatus.fulfilled:
@@ -360,7 +357,7 @@ class RaceResults extends StatelessWidget {
                           }
                         },
                         onLongPress: () {
-                          final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                          final tbModel = Provider.of<FilterTabbarModel>(ctx, listen: false);
                           tbModel.addTab(type: TAB_SKIER_DETAILS, skier: skier);
                         },
                         leading: Text((index + 1).toString()),

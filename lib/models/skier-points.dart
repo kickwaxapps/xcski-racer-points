@@ -1,5 +1,4 @@
 
-import 'package:xcp/models/skier.dart';
 
 class Points{
   final double avg;

@@ -1,4 +1,3 @@
-import 'package:xcp/models/points-bundle.dart';
 import 'package:xcp/models/skier-points.dart';
 
 import 'club.dart';

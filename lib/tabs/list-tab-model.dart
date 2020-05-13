@@ -31,8 +31,15 @@ abstract class _ListTabModel with Store {
 
   @computed
   String get title => type == TAB_POINTS_LIST
-      ? skierFilterContextModel.skierFilter.toString()
+      ? skierFilterContextModel.skierFilter.filterName()
       : name ?? 'Tab';
+
+
+  @computed
+  String get subTitle => type == TAB_POINTS_LIST
+      ? skierFilterContextModel.skierFilter.listDescription()
+      : '' ;
+
 
   @observable
   String description = '';
@@ -47,12 +54,6 @@ abstract class _ListTabModel with Store {
   };
 
 
-  @override
-  void dispose() {
-    skierFilterContextModel.dispose();
-    super.dispose();
-
-  }
 
 
 }

@@ -51,7 +51,6 @@ abstract class _FilterTabbarModel with Store {
   @action
   deleteTab(int i) {
     final tb = tabs.removeAt(i);
-    tb.model.dispose();
 
     setCurrent(i < count ? i : count - 1);
     syncController();

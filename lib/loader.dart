@@ -11,35 +11,71 @@ import 'package:http/http.dart' as http;
 import 'package:xcp/models/bundle.dart';
 
 import 'package:xcp/models/skier-race.dart';
-import 'package:xcp/models/skier.dart';
 
 
 
-Future<Bundle> fetchBundle() async {
-    List<Future<Object>> w = [ getInit(), getRollingPoints()];
+Future<Bundle> fetchBundle(bool forceReload) async {
+  try {
+    List<Future<Object>> w = [getInit(forceReload), getRollingPoints(), getCurrentPointIdHash()];
     List<Object> f = await Future.wait<Object>(w);
-    DB().endBig();
     Bundle bundle = f[0] as Bundle;
     List<RollingPoints> rp = f[1] as List<RollingPoints>;
-
-
+    int hash = f[2] as int;
+    int bundleHash = bundle.points.hash;
+    if (hash != bundleHash) {
+      try {
+        bundle = await getInit(true);
+      }
+      catch (e) {
+        print('$e');
+      }
+    }
+    final closeFuture = DB().endBig();
     rp.forEach((it) {
       final skier = bundle.skiers[it.skierId];
-      skier.updateRolling(it.discipline, it.points);
+      skier?.updateRolling(it.discipline, it.points);
     });
+    await closeFuture;
     return bundle;
+  }
+  catch (e) {
+    print('$e');
+    return null;
+  }
+
 }
 
-Future<Bundle> getInit() async {
+Future<Bundle> getInit(bool reload) async {
+
+  print('db');
   final db =  DB();
+
+  print ('begin');
   await db.beginBig();
-  String data = await db.getBig('bundle_v1');
-  if (data.isEmpty) {
+
+  print('db.getBig');
+ if (reload) {
+    await db.setBig('bundle_v3', null);
+ }
+  String data = await db.getBig('bundle_v3');
+
+  print('got data');
+
+  if (data == null) {
     final response = await http.get('https://www.xcracer.info/api/init4');
-    db.setBig('bundle_v1', response.body);
     data = response.body;
+    db.setBig('bundle_v3', data);
   }
-  return compute(parseBundle, data);
+
+  final Bundle result = await compute(parseBundle, data);
+  return result;
+}
+
+Future<int> getCurrentPointIdHash() async {
+  final response = await http.get('https://www.xcracer.info/api/current');
+  final jMap = json.decode(response.body);
+  final hash = (jMap['ids'] as List).reduce((it, c) => c + it);
+  return hash;
 }
 
 Future<List<RollingPoints>> getRollingPoints() async {

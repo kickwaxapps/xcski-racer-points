@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:xcp/models/skier-points.dart';
 import 'package:xcp/models/skier-race.dart';
 import 'package:xcp/models/skier.dart';
+import 'package:xcp/stores/global.dart';
 import 'package:xcp/tabs/filter-tabbar-model.dart';
 import 'package:xcp/tabs/race-results-list.dart';
 import 'package:xcp/tabs/skier-details-model.dart';
@@ -131,6 +132,10 @@ class RaceFilters extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final model = Provider.of<SkierDetailsModel>(ctx);
+    final global = Provider.of<GlobalStore>(ctx);
+    final pubFromDt = global.bundle.value.points.maleDistance.fromDate;
+    final pubToDt = global.bundle.value.points.maleDistance.toDate;
+
     // TODO: implement build
     return  Card( child: Container(
       padding: EdgeInsets.all(10),
@@ -170,7 +175,17 @@ class RaceFilters extends StatelessWidget {
                     ))
                         .toList(),
                     onPressed: (int index) {
-                      model.timeFilter = TimeFilter.values[index];
+                      final tf =  TimeFilter.values[index];
+                      var fromDt = DateTime(1970,1,1);
+                      var toDt = DateTime(2020,1,1);
+                      if (tf == TimeFilter.lastPublished) {
+                        fromDt = pubFromDt;
+                        toDt = pubToDt;
+                      } else if ( tf == TimeFilter.currentPointsPeriod) {
+                        fromDt = DateTime.now().add(Duration(days:-365));
+                        toDt = DateTime.now();
+                      }
+                      model.setTimeFilter(TimeFilter.values[index], fromDt, toDt);
                     },
                     isSelected: TimeFilter.values
                         .map((it) => it == model.timeFilter)
@@ -237,6 +252,7 @@ class SkierResultGraph extends StatelessWidget {
             ts.sort(( i0,i1) => i1.id.compareTo(i0.id));
 
             return charts.TimeSeriesChart(ts,
+                animate: false,
                 defaultRenderer: charts.LineRendererConfig(
                     includePoints: true, includeArea: true),
                 primaryMeasureAxis: charts.NumericAxisSpec(
@@ -305,6 +321,7 @@ class SkierPointsGraph extends StatelessWidget {
             ts.sort((i0,i1) => i1.id.compareTo(i0.id));
 
             return charts.TimeSeriesChart(ts,
+                animate: false,
                 defaultRenderer: charts.LineRendererConfig(
                     includePoints: true, includeArea: true),
                 primaryMeasureAxis: charts.NumericAxisSpec(
@@ -367,6 +384,7 @@ class SkierEosPointsGraph extends StatelessWidget {
                 ));
 
             return charts.BarChart([...ts, ...getInternationalNorms(model.skier.sex, minAge, maxAge, minMeasure)],
+                animate: false,
                 barGroupingType: charts.BarGroupingType.grouped,
                 customSeriesRenderers: [
                   new charts.BarTargetLineRendererConfig<String>(
@@ -507,20 +525,31 @@ class SkierRaces extends StatelessWidget {
         switch (model.raceResults.status) {
           case FutureStatus.fulfilled:
             final data = model.filteredResults;
+            final highlightCPL = model.raceFilter != RaceFilter.all && model.raceSort == RaceSort.byCPLPoints,
+                highlightCount = model.raceFilter == RaceFilter.distance ? 7 : 4;
 
             return Column( children:List.generate(data.length, (index) {
                   final skierRace = data[index];
                   final name = '${skierRace.name} (${skierRace.type})' ;
                   final dist = (skierRace.distanceKm > 0 ? '${skierRace.distanceKm}km ' : '' )+ (skierRace.technique == 'C' ? 'Classic' : (skierRace.technique == 'F' ? 'Skate' : '')).trim();
+                  final highlightTile = highlightCPL && (index < highlightCount);
 
-                  return ListTile(
+                  return Container(
+                      decoration: highlightTile ? BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          //stops: [index * (1/highlightCount), (index+1) * (1/highlightCount) ],
+                          colors: [Colors.greenAccent, index + 1 == highlightCount ? Colors.white : Colors.greenAccent]
+                      )) : null,
+                      child: ListTile(
                     onLongPress: () {
-                        final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                        final tbModel = Provider.of<FilterTabbarModel>(ctx, listen: false);
                         tbModel.addTab(type: TAB_RACE_DETAILS, race: skierRace.race);
                     },
                     onTap: () {
                       if (isLargeScreen) {
-                        final tbModel = Provider.of<FilterTabbarModel>(ctx);
+                        final tbModel = Provider.of<FilterTabbarModel>(ctx, listen: false);
                         tbModel.addTab(
                             type: TAB_RACE_DETAILS, race: skierRace.race);
                       } else {
@@ -550,7 +579,7 @@ class SkierRaces extends StatelessWidget {
                           Text(skierRace.points.toString(), textScaleFactor: .85,),
                           Text(skierRace.rank.toString(), textScaleFactor: .85,)
                         ],
-                      )));
+                      ))));
                 }));
 
           case FutureStatus.pending:

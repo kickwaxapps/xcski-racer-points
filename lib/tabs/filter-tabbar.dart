@@ -59,7 +59,7 @@ class _FilterTabbarState extends State<FilterTabbar>
      global.addFreeFormListBuilder = () => model.addTab(type: TAB_LIST_BUILDER);
 
     final db = DB();
-      final x = Observer(name: 'serializer', builder: (ctx) {
+      final x = Observer(builder: (ctx) {
         db.setPref('tabs', json.encode(model.toJson));
         final v = db.getPref('tabs');
         return Text('hello');
@@ -74,7 +74,7 @@ class _FilterTabbarState extends State<FilterTabbar>
               child: Row(
 
                   children: [
-                    Observer(name: 'tab row', builder: (ctx) =>
+                    Observer(builder: (ctx) =>
                         Flexible(
                             flex: 10,
                             child: Container(
@@ -120,7 +120,15 @@ class _FilterTabbarState extends State<FilterTabbar>
                                                             Tooltip(message:model.tabs[i].model.title,
                                                             child:  Container(
                                                                 constraints: BoxConstraints(minWidth: 50, maxWidth: 100),
-                                                                child: ClipRect(child:Text(model.tabs[i].model.title, overflow: TextOverflow.ellipsis, softWrap: false,)))
+                                                                child: ClipRect(child:
+                                                                Column(
+                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  children: <Widget>[
+                                                                    Text(model.tabs[i].model.title, overflow: TextOverflow.ellipsis, softWrap: false,),
+                                                                    Text(model.tabs[i].model.subTitle, style: TextStyle(fontSize: 8),overflow: TextOverflow.ellipsis, softWrap: false,),
+                                                                  ],
+                                                                )))
                                                             ),
                                                             Padding(
                                                                 padding: EdgeInsets
@@ -152,7 +160,6 @@ class _FilterTabbarState extends State<FilterTabbar>
               ),
             ),
             Expanded(child: Observer(
-              name: 'tab-view',
               builder: (ctx) {
                 return TabBarView(
 

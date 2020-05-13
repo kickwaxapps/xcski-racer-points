@@ -14,6 +14,7 @@ abstract class _SkierFilterContextModel with Store {
 
   @observable
   int selectedSkierId = -1;
+
   @observable
   SkierFilter skierFilter = SkierFilter();
 

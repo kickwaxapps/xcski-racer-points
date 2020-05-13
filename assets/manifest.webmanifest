@@ -1,0 +1,21 @@
+{
+  "name": "XC Racer",
+  "short_name": "XC Racer",
+  "theme_color": "#2196f3",
+  "background_color": "#2196f3",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+      {
+        "src": "/assets/assets/img/skier192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/assets/assets/img/skier512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ]
+}

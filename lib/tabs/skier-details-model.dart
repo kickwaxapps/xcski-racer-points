@@ -48,6 +48,13 @@ abstract class _SkierDetailsModel with Store {
   @observable
   TimeFilter timeFilter = TimeFilter.none;
 
+  @observable
+  DateTime  filterFrom = DateTime(1970,1,1);
+
+  @observable
+  DateTime  filterTo = DateTime(2050,1,1);
+
+
   @computed
   List<SkierRace> get filteredResults => raceResults.status == FutureStatus.fulfilled ? getFilteredRaces(raceResults.value) : [];
 
@@ -58,32 +65,23 @@ abstract class _SkierDetailsModel with Store {
     return r;
   }
 
-  bool applyFilter(SkierRace race) {
-    DateTime from, to;
-    switch(timeFilter){
-      case TimeFilter.none:
-        from = DateTime(1900,1,1);
-        to = DateTime(3000,12,31);
-        break;
-      case TimeFilter.currentPointsPeriod:
-        from = DateTime.now().add(Duration(days:-365));
-        to = DateTime.now();
-        break;
-      case TimeFilter.lastPublished:
-        from = DateTime.now().add(Duration(days:-365));
-        to = DateTime.now();
-        break;
-    }
+  @action
+  setTimeFilter(TimeFilter tf, DateTime fromDt, DateTime toDt) {
+    timeFilter = tf;
+    filterFrom = fromDt;
+    filterTo = toDt;
+  }
 
-    if (race.date.isBefore(from) || race.date.isAfter(to)) {
+  bool applyFilter(SkierRace race) {
+    if (race.date.isBefore(filterFrom) || race.date.isAfter(filterTo)) {
       return false;
     }
 
     switch(raceFilter) {
       case RaceFilter.distance:
-        return race.discipline == 'D';
+        return race.discipline == 'D' && race.type != 'ROL';
       case RaceFilter.sprint:
-        return race.discipline == 'S';
+        return race.discipline == 'S' && race.type != 'ROL';
       case RaceFilter.all:
       default:
         return true;

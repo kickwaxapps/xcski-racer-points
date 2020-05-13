@@ -1,5 +1,4 @@
 
-import 'dart:collection';
 
 import 'package:xcp/models/rolling-points.dart';
 import 'package:xcp/models/skier-points.dart';
@@ -42,6 +41,8 @@ class PointsBundle {
 
   final Map distance;
   final Map sprint;
+
+  int get hash => maleSprint.id + maleDistance.id + femaleSprint.id + femaleDistance.id;
 
   Map<int, RollingPoints> _rollingPoints;
 

@@ -62,11 +62,4 @@ abstract class _FilterModel with Store {
     regions.forEach((it)=> it.enabled = false);
   }
 
-  @override
-  void dispose() {
-    print('BYE BYE');
-    searchStringController.dispose();
-  }
-
-
-}
+ }

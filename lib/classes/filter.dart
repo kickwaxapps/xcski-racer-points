@@ -85,14 +85,26 @@ class SkierFilter {
 
   String toString() {
     String
-        d = pointsDiscipline.toString().split('.').last,
+        d = pointsDiscipline.toString().split('.').last;
+    return d+ ' ' + filterName();
+  }
+
+
+  String listDescription() {
+    String d = pointsDiscipline.toString().split('.').last;
+    String t = pointsListType == PointsListType.lastPublished ? 'CPL' : 'Rolling';
+    return d[0].toUpperCase()+d.substring(1) + ' ' + t;
+
+  }
+  String filterName() {
+    String
         r = regions.join(','),
         n = nations.join(','),
         s = sex == 1 ? 'F' : (sex == 2) ? 'M' : '',
         b = yobs.map( (it)=>it.toString().substring(2)).join(','),
         c = searchString.length > 0 ? '['+searchString+']' : '',
         t = (s+b+' '+n+' '+r+' '+c).trim();
-    return d+ ' ' + (t.length > 0 ? t : 'All' );
+    return (t.length > 0 ? t : 'All' );
   }
 
   Map get toJson => {
